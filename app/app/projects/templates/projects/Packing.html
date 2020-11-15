@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block links %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='project.css') }}">
+{% endblock %}
+
+{% block title %}
+    Packing
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <h1>Packing</h1>
+    <p>
+        Программа для тех, кто много путешествует. Можно один раз составить список вещей для определённого типа поездки,
+        а при последующих поездках останется только слегка отредактировать его под новое путешествие. Есть возможность задавать вес вещей, что
+        может оказаться полезным для путешествий самолётом или для пеших походов.
+    </p>
+    <p>
+        Программа создана с помощью фреймворка PyQT5. Списки хранятся в виде дерева в
+        таблицах базы данных Sqlite. Существует защита от ввода неправильных данных и от
+        нарушения связности дерева.
+    </p>
+
+    <a href="https://github.com/vasiliypozhinskiy/packing" target="_blank">Репозиторий проекта</a>
+    <a href="{{ url_for('static', filename='files/packing.rar') }}">Архив с программой</a>
+
+    <img src="{{ url_for('static', filename='images/packing-1.jpg') }}" width="60%">
+    <div class="description">Собранные вещи отмечаются зелёным цветом.</div>
+    <img src="{{ url_for('static', filename='images/packing-2.jpg') }}" width="60%">
+    <div class="description">Окно добавления предметов блокирует открытие новых окон.</div>
+</div>
+{% endblock %}

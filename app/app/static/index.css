@@ -1,0 +1,29 @@
+
+
+
+.content {
+          width: 80%;
+          margin: 0 auto;
+          display: flex;
+          justify-content: space-around;
+          }
+
+
+.left-content, .right-content {
+                               padding: 15px;
+                               }
+
+/* left-content*/
+.links {
+        display: flex;
+        flex-direction: column;
+        }
+
+.link {
+       margin: 0 auto 10px;
+       }
+
+/* right-content */
+.right-content {
+                text-align: justify !important;
+                }

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block links %}
+<link rel="stylesheet" href="{{ url_for('static', filename='project.css') }}">
+{% endblock %}
+
+{% block title %}
+Virtual owl museum
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <h1>Virtual owl museum</h1>
+    <p>
+        Программа представляет собой виртуальный музей, позволяющий
+        посмотреть на изображения сов в искусстве от каменного века до
+        современности. Описания картин перемежаются с интересными
+        фактами о совах.
+    </p>
+
+    <p>
+        В музее собрано 103 экспоната, представленных в 7-ми залах.
+        Самое раннее изображение датируется 30-м тысячелетием до Н.Э.
+        Новейшая картина относится к 2019 году.
+    </p>
+
+    <p>
+        Программа была разработана с помощю библиотеки pygame.
+        Имеется возможность расширения коллекции музея с помощю добавления
+        изображений в папки залов. При запуске используется разрешение
+        экрана, заданное системой, и все картины и описания к ним
+        масштабируются под это разрешение.
+    </p>
+
+    <a href="https://github.com/vasiliypozhinskiy/Virtual-owl-museum" target="_blank">Репозиторий проекта</a>
+    <a href="{{ url_for('static', filename='files/Virtual owl museum.rar') }}">Архив с программой</a>
+    <img src="{{ url_for('static', filename='images/museum-menu.jpg') }}" width="100%">
+    <div class="description">Главное меню. Вход в залы музея.</div>
+    <img src="{{ url_for('static', filename='images/museum-1.jpg') }}" width="100%">
+    <div class="description">Изображение совы Афины. Экспонат из античного зала.</div>
+    <img src="{{ url_for('static', filename='images/museum-2.jpg') }}" width="100%">
+    <div class="description">Ястребиная сова. Экспонат зала классического искусства.</div>
+    <img src="{{ url_for('static', filename='images/museum-3.jpg') }}" width="100%">
+    <div class="description">Изображение совы из зала современного искусства.</div>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block links %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='project.css') }}">
+{% endblock %}
+
+{% block title %}
+Get recipe
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <h1>Get recipe</h1>
+    <p>
+        Программа создана для тех, кто не знает, что приготовить. Можно посмотреть, какие продукты есть в холодильнике,
+        записать их в программу, и она выдаст рецепт приготовления. Также есть возможность получить случайный рецепт.
+    </p>
+    <p>
+        Программа создана с помощью фреймворка PyQT5. Рецепты берутся с сайта spoonacular.com. Для работы программы
+        требуется зарегестрироваться на сайте и получить api токен. После чего нужно создать системную переменную
+        food_api_key со значением токена.
+        Без доступа к сайту работает только локальная база данных, изображения блюд при этом загружаться не будут.
+    </p>
+    <a href="https://github.com/vasiliypozhinskiy/get_recipe" target="_blank">Репозиторий проекта</a>
+
+    <img src="{{ url_for('static', filename='images/get recipe-1.jpg') }}" width="100%">
+    <div class="description">Введите нужные ингредиенты.</div>
+    <img src="{{ url_for('static', filename='images/get recipe-2.jpg') }}" width="100%">
+    <div class="description">Полученый рецепт.</div>
+    <img src="{{ url_for('static', filename='images/get recipe-3.jpg') }}" width="100%">
+    <div class="description">Рецепты, сохранённые в базе данных.</div>
+</div>
+{% endblock %}

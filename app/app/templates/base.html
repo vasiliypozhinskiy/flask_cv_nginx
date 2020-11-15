@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block links %}
+
+    {% endblock %}
+    <title>{% block title %}
+
+            {% endblock %} | Flask CV
+    </title>
+</head>
+<body>
+        <div class="background">
+        </div>
+    <div class="page">
+
+        <header class="header">
+            <nav class="nav">
+                <div class="nav-list">
+                    <a class="nav-item" href="{{ url_for('index') }}">About me</a>
+                    <div class="projects-menu">Projects
+                        <div class="dropdown">
+                            {% for project_slug in project_dict.keys() %}
+                                <a class="project" href="{{ url_for('projects.show_project', slug=project_slug) }}">{{project_dict[project_slug]}}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <a class="nav-item" href="{{ url_for('contacts') }}">Contacts</a>
+                </div>
+            </nav>
+        </header>
+        <main class="main">
+            {% block content %}
+
+            {% endblock %}
+        </main>
+        <footer class="footer">
+            <span>Designed by Vasiliy Pozhinskiy. © 2020</span>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block links %}
+<link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+{% endblock %}
+
+{% block title %}
+index
+{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <div class="left-content">
+            <div class="photo">
+                <img src="{{url_for('static', filename='images/photo.jpg')}}" width="400"/>
+            </div>
+            <div class="links">
+                <a class="nav-item link" href="https://github.com/vasiliypozhinskiy/" target="_blank">GitHub</a>
+                <a class="nav-item link" href="{{url_for('static', filename='files/резюме Пожинский В.pdf')}}" download>Download CV in pdf</a>
+                <a class="nav-item link" href="https://stepik.org/users/195223144/certificates" target="_blank">Certificates</a>
+            </div>
+        </div>
+
+        <div class="right-content">
+            <h2>Личные данные:</h2>
+            <div> ФИО: Пожинский Василий Анатольевич</div>
+            <div> Дата рождения: 22.07.1992</div>
+            <h2>Навыки:</h2>
+            <ol>
+                <li>Python 3: PyQt5, Flask</li>
+                <li>Базы данных: Sqlite, MySQL</li>
+                <li>Вёрстка: HTML5, CSS</li>
+                <li>Система контроля версий: git</li>
+                <li>Операционные системы: Windows, Linux</li>
+                <li>Английский язык: Intermediate</li>
+            </ol>
+            <h2>Проекты:</h2>
+            <ol>
+                <li> <p>
+                    «Packing».
+                    Программа на PyQt5 для Windows и Linux для сбора вещей в дорогу.
+                    Сохраняет наборы в базу данных Sqlite.
+                </li>
+                <li> <p>
+                    «Get recipe».
+                    Программа на PyQt5 для Windows для получения рецептов по
+                    заданным ингредиентам с помощью API сайта spoonacular.com.
+                    Полученные рецепты сохраняются в базу данных Sqlite.
+                </li>
+                <li> <p>
+                    «Virtual owl museum».
+                    Программа представляет собой виртуальный музей, позволяющий
+                    посмотреть на изображения сов в искусстве от каменного века до
+                    современности. Описания картин перемежаются с интересными
+                    фактами о совах.
+                </li>
+            </ol>
+
+            <h2>Основное образование:</h2>
+            <span>СПбГМТУ (специальность «прикладная математика»). 2009—2014.</span>
+            <h2>Дополнительное образование:</h2>
+            <ul>
+                <li>«Python: основы и применение». Bioinformatics Institute. Stepik.org</li>
+                <li>«Интерактивный тренажер по SQL». Дальневосточный федеральный университет. Stepik.org</li>
+                <li>«Основы Git». Mark Zaslavskiy. Stepik.org</li>
+                <li>«Веб разработка для начинающих: HTML и CSS». ITC. Stepik.org</li>
+            </ul>
+
+            <h2>Интересы:</h2>
+            <ul>
+                <li>Настольные игры</li>
+                <li>Пешеходный туризм</li>
+                <li>Фантастическая литература</li>
+                <li>Компьютерные стратегии</li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
