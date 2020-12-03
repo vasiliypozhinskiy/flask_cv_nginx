@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block links %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='project.css') }}">
+{% endblock %}
+
+{% block title %}
+Project planner
+{% endblock %}
+
+{% block content %}
+<div class="content">
+    <h1>Project planner</h1>
+        <p>
+            Программа позволяет распределить проекты на временной оси. Подойдёт для людей, которые часто выполняют несколько
+            задач одновременно. Поможет правильно расставить приоритеты и оценить время до дедлайна для каждого запланированного проекта.
+            Идея взята из курса СПбГМТУ "Организация производственных процессов".
+        </p>
+        <p>
+            Программа создана с помощью фреймворка PyQT5. Все проекты сохраняются в базу Sqlite.
+        </p>
+
+    <a href="https://github.com/vasiliypozhinskiy/project_planner" target="_blank">Репозиторий проекта</a>
+    <a href="{{ url_for('static', filename='files/project planner.rar') }}">Архив с программой</a>
+
+    <img src="{{ url_for('static', filename='images/project planner-1.jpg') }}" width="100%">
+    <div class="description">Проекты распологаются на бесконечной временной оси.</div>
+    <img src="{{ url_for('static', filename='images/project planner-2.jpg') }}" width="100%">
+    <div class="description">Выполненые проекты отмечаются штриховкой.</div>
+    <img src="{{ url_for('static', filename='images/project planner-3.jpg') }}" width="100%">
+    <div class="description">Есть удобный календарь для выбора сроков выполнения.</div>
+</div>
+{% endblock %}
