@@ -6,7 +6,7 @@ from .forms import ContactForm
 from app.mail import send_email
 
 projects_dict = {'virtual-owl-museum': 'Virtual owl museum', 'packing': 'Packing',
-                 'get-recipe': 'Get recipe', 'project-planner': 'Project planner'}
+                 'get-recipe': 'Get recipe', 'project-planner': 'Project planner', 'arkanoid': 'Arkanoid'}
 
 
 @app.route('/')

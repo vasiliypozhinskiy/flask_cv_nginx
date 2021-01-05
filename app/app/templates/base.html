@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='scripts/jquery-3.5.1.min.js')}}"></script>
     {% block links %}
 
     {% endblock %}
@@ -23,7 +24,11 @@
                     <div class="projects-menu">Projects
                         <div class="dropdown">
                             {% for project_slug in project_dict.keys() %}
+                                {% if project_slug == 'arkanoid' %}
+                                <a class="project" href="{{ url_for('arkanoid.show_arkanoid') }}">{{project_dict[project_slug]}}</a>
+                                {% else %}
                                 <a class="project" href="{{ url_for('projects.show_project', slug=project_slug) }}">{{project_dict[project_slug]}}</a>
+                                {% endif %}
                             {% endfor %}
                         </div>
                     </div>
