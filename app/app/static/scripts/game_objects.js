@@ -889,7 +889,10 @@ class LifeBonus extends Bonus
         {
             play_audio(this.ball_item_up_sound);
             lives += 1;
-            ball.hp = config.BALL_HP;
+            if (ball.hp < config.BALL_HP)
+            {
+                ball.hp = config.BALL_HP;
+            }
             this.type = "for_delete";
         }
     }
@@ -1846,6 +1849,32 @@ class Score_obj
     }
 }
 
+class Message
+{
+    constructor(context, text)
+    {
+        this.context = context;
+        this.font = "36px roboto";
+        this.opacity = 1;
+        this.text = text;
+        this.status = "exist"
+    }
+
+    draw()
+    {
+        this.context.textAlign = "center";
+        this.context.fillStyle = "#000000";
+        this.context.font = this.font;
+        this.context.globalAlpha = this.opacity;
+        this.context.fillText(this.text, config.CANVAS_WIDTH / 2, config.CANVAS_HEIGHT / 2);
+        this.context.globalAlpha = 1;
+        this.opacity -= 0.005;
+        if (this.opacity <= 0)
+        {
+            this.status = "for_delete";
+        }
+    }
+}
 
 function play_audio(path)
 {

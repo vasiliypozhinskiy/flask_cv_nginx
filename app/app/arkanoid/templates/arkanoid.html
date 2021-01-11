@@ -2,6 +2,7 @@
 
 {% block links %}
     <link rel="stylesheet" href="{{ url_for('static', filename='project.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='arkanoid.css') }}">
 {% endblock %}
 
 {% block title %}
@@ -12,9 +13,20 @@ Arkanoid
 
 <div class="content">
     <h1>Arkanoid</h1>
-    <canvas id="arkanoid" width="800" height="600"></canvas>
-    <input id="start" type="button" value="Play" onclick="arkanoid_start(1)">
-
+    <div class="arkanoid">
+        <canvas id="arkanoid" width="800" height="600"></canvas>
+        <table class="top-scores" id="top-scores" border="1">
+                <caption>Best results</caption>
+        </table>
+        <div class="form" id="add-score-container">
+            <form id="add-score-form" action="" method="POST" autocomplete="off">
+                <input class="add-score-input" type="text" name="name" placeholder="Enter your name" />
+                <input class="button" id="add-score-btn" type="button" value="Save result" onclick="add_score()"/>
+            </form>
+        </div>
+    <input class="button" id="start" type="button" value="Play" onclick="arkanoid_start(1)">
+    <input class="button" id="pause" type="button" value="Pause" onclick="pause(requestId)">
+    <input class="button" id="show-score" type="button" value="Show best results" onclick="show_score()">
 </div>
 <script src="{{url_for('static', filename='scripts/game_objects.js')}}"></script>
 <script src="{{url_for('static', filename='scripts/arkanoid.js')}}"></script>

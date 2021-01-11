@@ -3,6 +3,8 @@ import random
 from flask import Blueprint, render_template, jsonify, request
 
 from app.arkanoid.arkanoid_cfg import arkanoidConfig
+from app.models import ArkanoidScore
+from app import db
 
 arkanoid = Blueprint('arkanoid', __name__, template_folder='templates')
 
@@ -25,7 +27,7 @@ def generate_lvl():
         for i in range(8):
             for j in range(4):
                 x = i * (arkanoidConfig["BRICK_WIDTH"] + arkanoidConfig["BRICK_OFFSET_X"]) + 40
-                y = j * (arkanoidConfig["BRICK_HEIGHT"] + arkanoidConfig["BRICK_OFFSET_Y"]) + arkanoidConfig["BRICK_OFFSET_Y"]
+                y = j * (arkanoidConfig["BRICK_HEIGHT"] + arkanoidConfig["BRICK_OFFSET_Y"]) + arkanoidConfig["BRICK_OFFSET_Y"] + 20
                 new_brick = generate_brick(x, y, lvl)
                 if new_brick:
                     bricks.append(new_brick)
@@ -38,6 +40,25 @@ def generate_lvl():
             if new_bonus:
                 bonuses.append(new_bonus)
     return jsonify(bricks=bricks, bonuses=bonuses, doomguys=doomguys)
+
+
+@arkanoid.route('/add_score', methods=['POST'])
+def add_score():
+    score = int(request.form["score"])
+    user = request.form["user"]
+    record = ArkanoidScore(username=user, score=score)
+    db.session.add(record)
+    db.session.commit()
+    return "", 204
+
+
+@arkanoid.route('/show_score')
+def show_score():
+    query = db.session.query(ArkanoidScore).order_by(ArkanoidScore.score.desc()).limit(20)
+    answer = []
+    for score in query:
+        answer.append(score.as_dict())
+    return jsonify(answer)
 
 
 def generate_brick(x, y, lvl):

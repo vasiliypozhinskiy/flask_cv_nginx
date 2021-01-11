@@ -1,5 +1,7 @@
 import os
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 
 class Config:
     SECRET_KEY = os.getenv('FLASKCV_SECRET_KEY')
@@ -10,3 +12,5 @@ class Config:
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_USE_SSL = True
     MAIL_PASSWORD = os.getenv('FLASKCV_MAIL_PASSWORD')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
