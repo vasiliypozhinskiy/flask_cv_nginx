@@ -45,6 +45,8 @@ const paddle = new Paddle(context, canvas.width/2 - config.PADDLE_WIDTH / 2, can
 const ball = new Ball(context, canvas.width/2, paddle.y - config.BALL_RADIUS);
 const left_torch = new Torch(context, 0, canvas.height);
 const right_torch = new Torch(context, canvas.width - 26, canvas.height);
+const SPIKES = new Image();
+SPIKES.src = "/static/images/spikes.png";
 
 var bricks = [];
 var bonuses = [];
@@ -197,6 +199,8 @@ function loop() {
         }
         paddle.speed = [0, 0]
 
+        context.drawImage(SPIKES, 26, config.CANVAS_HEIGHT - 24);
+
         setTimeout(() => {
         requestId = requestAnimationFrame(loop);
         }, 1000 / config.FRAMES_RATE);
@@ -207,6 +211,7 @@ function arkanoid_start(lvl)
 {
     disable_keys();
     $('#top-scores').css({"opacity": "0"});
+    $('#add-score-container').css({"opacity": "0"});
     $('#start').attr("disabled", true);
     $('#show-score').attr("disabled", true);
     $.ajax({
@@ -221,7 +226,7 @@ function arkanoid_start(lvl)
             bonuses.push.apply(bonuses, new_bonuses);
             let new_doomguys = create_doomguys(data["doomguys"]);
             doomguys.push.apply(doomguys, new_doomguys);
-            message_list.push(new Message(context, "Level" + current_lvl));
+            message_list.push(new Message(context, "Level " + lvl));
             play_audio(start_sound);
             loop();
         }
@@ -306,7 +311,7 @@ function level_complete(current_lvl)
 {
     paddle.reset();
     ball.reset(paddle);
-    arkanoid_start(current_lvl + 1);
+    arkanoid_start(current_lvl);
 }
 
 function game_over()
@@ -335,7 +340,7 @@ function draw_hud()
     context.font = "24px roboto";
     context.fillText(" Score: " + game_score, 800, 24);
     context.textAlign = "start";
-    context.fillText("Lives left: " + lives + " Hp: " + ball.hp, 0, 24);
+    context.fillText("Lives: " + lives + " Hp: " + ball.hp, 0, 24);
 }
 
 function show_message(text)
@@ -349,43 +354,87 @@ function show_message(text)
 function show_score_form(score)
 {
     last_score = score;
+    $("#add-score-container h2").remove();
     $('#add-score-container').css({"opacity": "1"})
     $('#add-score-container').prepend("<h2>Game over</h2><h2>Your score: " + last_score + "</h2>")
 }
 
 function add_score()
 {
+    let username = $("#add-score-form").serialize().split("=")[1]
+    if (username.length === 0)
+    {
+        return;
+    }
     $.ajax({
         url: "/projects/add_score",
         type: "POST",
-        data: {"score": last_score, "user": $("#add-score-form").serialize().split("=")[1]}
+        data: {"score": last_score, "user": username}
     }
     );
     $('#add-score-container').css({"opacity": "0"});
-    $("#add-score-container h2").remove();
-    show_score(last_score);
+    $("#add-score-form")[0].reset();
+    show_score(last_score, username);
 }
 
-function show_score(current_score)
+function show_score(score, user)
 {
+    let current_user_shown = false;
     if ($('#top-scores').css("opacity") == 0)
     {
+    $('#add-score-container').css({"opacity": "0"});
     $.ajax({
         url: "/projects/show_score",
         type: "GET",
         contentType: "application/json",
         success: function(data)
             {
+                var rows_count = data.length;
+                if (data.length > 20)
+                {
+                    rows_count = 20;
+                }
                 $('#top-scores').css({"opacity": "1"});
                 $("#top-scores tr").remove();
-                $("#top-scores").append("<tr><th width='10%'>№</th><th width='50%'>Username</th><th width='20%'>Score</th><th width='10%'>Date</th></tr>")
-                for (let i = 0; i < data.length; i++)
+                $("#top-scores").append("<tr><th width='10%'>№</th><th width='50%'>Name</th><th width='20%'>Score</th><th width='10%'>Date</th></tr>")
+                for (let i = 0; i < rows_count; i++)
                 {
+                    if ((score == data[i]["score"])&&(user == data[i]["username"])&&(!current_user_shown))
+                    {
+                        current_user_shown = true;
+                        $("#top-scores").append("<tr style='color: red'></tr>");
+                        $("#top-scores > tr:last").append("<td align='center'>" + (i + 1) + "</td>"
+                        + "<td align='center'>" + data[i]["username"] + "</td>"
+                        + "<td align='center'>" + data[i]["score"] +"</td>"
+                        + "<td align='center'>" + data[i]["date"] +"</td>");
+                    } else
+                    {
+                        $("#top-scores").append("<tr></tr>");
+                        $("#top-scores > tr:last").append("<td align='center'>" + (i + 1) + "</td>"
+                        + "<td align='center'>" + data[i]["username"] + "</td>"
+                        + "<td align='center'>" + data[i]["score"] +"</td>"
+                        + "<td align='center'>" + data[i]["date"] +"</td>");
+                    }
+                }
+
+                if (!current_user_shown && (typeof score != "undefined") && (typeof user != "undefined"))
+                {
+                    $("#top-scores > tr:last").remove();
+                    $("#top-scores > tr:last").remove();
                     $("#top-scores").append("<tr></tr>");
-                    $("#top-scores > tr:last").append("<td align='center'>" + (i + 1) + "</td>"
-                    + "<td align='center'>" + data[i]["username"] + "</td>"
-                    + "<td align='center'>" + data[i]["score"] +"</td>"
-                    + "<td align='center'>" + data[i]["date"] +"</td>");
+                    $("#top-scores > tr:last").append("<td align='center'>...</td><td align='center'>...</td><td align='center'>...</td><td align='center'>...</td>");
+                    for (let i = rows_count; i < data.length; i++)
+                    {
+                        if ((score == data[i]["score"])&&(user == data[i]["username"]))
+                        {
+                            $("#top-scores").append("<tr style='color: red'></tr>");
+                            $("#top-scores > tr:last").append("<td align='center'>" + (i + 1) + "</td>"
+                            + "<td align='center'>" + data[i]["username"] + "</td>"
+                            + "<td align='center'>" + data[i]["score"] +"</td>"
+                            + "<td align='center'>" + data[i]["date"] +"</td>");
+                            break;
+                        }
+                    }
                 }
             }
         });

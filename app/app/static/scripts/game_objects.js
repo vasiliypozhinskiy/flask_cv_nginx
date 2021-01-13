@@ -537,6 +537,10 @@ class Ball
     this.x = paddle.x + paddle.width / 2;
     this.y = paddle.y - this.radius;
     this.frame_count = 0;
+    this.invisibility_duration = 0;
+    this.mega_duration = 0;
+    this.speed_duration = 0;
+    this.invulnerability_duration = 0;
  }
 
  move(paddle)
@@ -1733,6 +1737,9 @@ class Debris
 
     draw()
     {
+        this.context.strokeStyle = "black";
+        this.context.lineWidth = 3;
+
         for(let i = 0; i < 4; i++)
         {
             this.context.save();
@@ -1740,12 +1747,8 @@ class Debris
             this.context.rotate(this.degrees[i] * Math.PI / 180);
             this.create_shard(i);
             this.context.drawImage(this.image, -this.width / 2, -this.height / 2 + i);
-            this.context.beginPath();
-            this.context.rect(-this.width / 2, -this.height / 2, this.width, this.height);
-            this.context.strokeStyle = "black";
-            this.context.lineWidth = 3;
-            this.context.stroke();
             this.context.closePath();
+            this.draw_crack(i);
             this.context.restore();
             if (i <= 1)
             {
@@ -1756,6 +1759,7 @@ class Debris
                 this.degrees[i] = (this.degrees[i] - Math.random() * 3) % 360;
             }
         }
+        this.x += this.speed[0];
         this.y += this.speed[1];
         this.speed[1] += config.FALLING_SPEED;
     }
@@ -1793,6 +1797,46 @@ class Debris
             this.context.lineTo(this.intersection[0], this.intersection[1]);
             this.context.lineTo(this.width / 2, -this.height / 2);
             this.context.clip();
+        }
+    }
+
+    draw_crack(i)
+    {
+        if (i == 0)
+        {
+            this.context.beginPath();
+            this.context.moveTo(-this.width / 2, this.height / 2);
+            this.context.lineTo(this.intersection[0], this.intersection[1]);
+            this.context.lineTo(this.width / 2, this.height / 2);
+            this.context.closePath();
+            this.context.stroke();
+        }
+        if (i == 1)
+        {
+            this.context.beginPath();
+            this.context.moveTo(-this.width / 2, this.height / 2);
+            this.context.lineTo(this.intersection[0], this.intersection[1]);
+            this.context.lineTo(-this.width / 2, -this.height / 2);
+            this.context.closePath();
+            this.context.stroke();
+        }
+        if (i == 2)
+        {
+            this.context.beginPath();
+            this.context.moveTo(this.width / 2, -this.height / 2);
+            this.context.lineTo(this.intersection[0], this.intersection[1]);
+            this.context.lineTo(this.width / 2, this.height / 2);
+            this.context.closePath();
+            this.context.stroke();
+        }
+        if (i == 3)
+        {
+            this.context.beginPath();
+            this.context.moveTo(-this.width / 2, -this.height / 2);
+            this.context.lineTo(this.intersection[0], this.intersection[1]);
+            this.context.lineTo(this.width / 2, -this.height / 2);
+            this.context.closePath();
+            this.context.stroke();
         }
     }
 

@@ -18,7 +18,7 @@ arkanoidConfig = {
     "BALL_MAX_SPEED": 6,
     "FRICTION": 0.1,
     "BALL_DAMAGE": 10,
-    "LIVES": 1,
+    "LIVES": 3,
     "PADDLE_ZONE": 150,
     "FRAMES_RATE": 60
 }

@@ -54,7 +54,7 @@ def add_score():
 
 @arkanoid.route('/show_score')
 def show_score():
-    query = db.session.query(ArkanoidScore).order_by(ArkanoidScore.score.desc()).limit(20)
+    query = db.session.query(ArkanoidScore).order_by(ArkanoidScore.score.desc())
     answer = []
     for score in query:
         answer.append(score.as_dict())
@@ -63,11 +63,11 @@ def show_score():
 
 def generate_brick(x, y, lvl):
     seed = random.randint(0, 100)
-    if seed <= 10 * lvl:
+    if seed <= 5 + 3 * lvl:
         brick = {"type": 'brown', "x": x, "y": y, "has_doomguy": False}
-    elif seed <= 20 * lvl:
+    elif seed <= 5 + 6 * lvl:
         brick = {"type": 'grey', "x": x, "y": y, "has_doomguy": False}
-    elif seed <= 80 / lvl:
+    elif seed <= 20 + 60 / lvl:
         brick = {"type": 'default', "x": x, "y": y, "has_doomguy": False}
     else:
         return None

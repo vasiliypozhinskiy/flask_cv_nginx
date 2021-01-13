@@ -28,6 +28,7 @@ index
             <h2>Навыки:</h2>
             <ol>
                 <li>Python 3: PyQt5, flask</li>
+                <li>Javascript: ajax</li>
                 <li>Базы данных: Sqlite, MySQL</li>
                 <li>Вёрстка: HTML5, CSS</li>
                 <li>Система контроля версий: git</li>
@@ -36,23 +37,47 @@ index
             </ol>
             <h2>Проекты:</h2>
             <ol>
-                <li> <p>
+                <li>
+                    <p>
+                    «Arkanoid».
+                    Игра на javascript с использованьем ajax. Уровни генерируются на python. Результаты сохраняются в базу данных Sqlite.
+                    </p>
+                    <a class="nav-item link" href="{{ url_for('arkanoid.show_arkanoid') }}" target="_blank">Подробнее</a>
+                </li>
+                <li>
+                    <p>
+                    «Project planner».
+                    Программа на PyQt5 для Windows и Linux для распределения проектов.
+                    Сохраняет проекты в базу данных Sqlite.
+                    </p>
+                    <a class="nav-item link" href="{{ url_for('projects.show_project', slug='project-planner')}}" target="_blank">Подробнее</a>
+                </li>
+                <li>
+                    <p>
                     «Packing».
                     Программа на PyQt5 для Windows и Linux для сбора вещей в дорогу.
                     Сохраняет наборы в базу данных Sqlite.
+                    </p>
+                    <a class="nav-item link" href="{{ url_for('projects.show_project', slug='packing')}}" target="_blank">Подробнее</a>
                 </li>
-                <li> <p>
+                <li>
+                    <p>
                     «Get recipe».
                     Программа на PyQt5 для Windows для получения рецептов по
                     заданным ингредиентам с помощью API сайта spoonacular.com.
                     Полученные рецепты сохраняются в базу данных Sqlite.
+                    </p>
+                    <a class="nav-item link" href="{{ url_for('projects.show_project', slug='get-recipe')}}" target="_blank">Подробнее</a>
                 </li>
-                <li> <p>
+                <li>
+                    <p>
                     «Virtual owl museum».
                     Программа представляет собой виртуальный музей, позволяющий
                     посмотреть на изображения сов в искусстве от каменного века до
                     современности. Описания картин перемежаются с интересными
                     фактами о совах.
+                    </p>
+                    <a class="nav-item link" href="{{ url_for('projects.show_project', slug='virtual-owl-museum')}}" target="_blank">Подробнее</a>
                 </li>
             </ol>
 

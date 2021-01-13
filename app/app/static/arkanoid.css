@@ -2,6 +2,10 @@ h2 {
     text-align: center;
    }
 
+img {
+     margin: 5px;
+    }
+
 input {
        background: transparent;
        border-width: 3px;
@@ -29,6 +33,7 @@ input {
           position: relative;
           width: 800px;
           height: 600px;
+          margin: 0 auto;
           }
 
 .top-scores {
@@ -51,7 +56,16 @@ input {
       }
 
 .add-score-input {
-                  display: block;
                   width: 100%;
                  }
+
+.description {
+              width: 100%;
+              margin: 40px auto;
+             }
+
+.items {
+        border-color: grey;
+        margin: 0 auto;
+        }
 
