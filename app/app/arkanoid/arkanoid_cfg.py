@@ -20,5 +20,5 @@ arkanoidConfig = {
     "BALL_DAMAGE": 10,
     "LIVES": 3,
     "PADDLE_ZONE": 150,
-    "FRAMES_RATE": 60
+    "FPS": 60
 }

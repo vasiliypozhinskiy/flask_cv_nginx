@@ -68,7 +68,7 @@ class Paddle
         {
             this.x = config.CANVAS_WIDTH - config.OFFSET_X - this.width;
         }
-        if (this.x < 0)
+        if (this.x < config.OFFSET_X)
         {
             this.x = config.OFFSET_X;
         }
@@ -76,9 +76,9 @@ class Paddle
         {
             this.y = config.CANVAS_HEIGHT - config.OFFSET_Y - this.height;
         }
-        if (this.y < config.PADDLE_ZONE)
+        if (this.y < config.CANVAS_HEIGHT - config.PADDLE_ZONE)
         {
-            this.y = config.PADDLE_ZONE;
+            this.y = config.CANVAS_HEIGHT - config.PADDLE_ZONE;
         }
     }
 
@@ -116,6 +116,9 @@ class Paddle
 
     reset()
     {
+        this.invisibility_duration = 0;
+        this.mega_duration = 0;
+        this.speed_duration = 0;
         this.x = canvas.width / 2 - this.width / 2;
         this.y = canvas.height - this.height - config.OFFSET_Y;
     }

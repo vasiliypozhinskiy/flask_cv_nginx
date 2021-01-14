@@ -69,3 +69,15 @@ input {
         margin: 0 auto;
         }
 
+#background {
+            margin: 0;
+            position: absolute;
+            top: 0%;
+            z-index: 0;
+            }
+
+#arkanoid {
+          position: relative;
+          z-index: 100;
+          }
+

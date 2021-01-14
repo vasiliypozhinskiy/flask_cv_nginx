@@ -6,15 +6,16 @@
 {% endblock %}
 
 {% block title %}
-Arkanoid
+Doomanoid
 {% endblock %}
 
 {% block content %}
 
 <div class="content">
-    <h1>Arkanoid</h1>
+    <h1>Doomanoid</h1>
     <div class="arkanoid">
-        <canvas id="arkanoid" width="800" height="600"></canvas>
+        <canvas id="arkanoid" width="800" height="600" tabindex="0"></canvas>
+        <img id="background" src="/static/images/arkanoid-background.png">
         <table class="top-scores" id="top-scores" border="1">
                 <caption>Best results</caption>
         </table>
@@ -27,6 +28,7 @@ Arkanoid
         <input class="button" id="start" type="button" value="Play" onclick="arkanoid_start(1)">
         <input class="button" id="pause" type="button" value="Pause" onclick="pause(requestId)">
         <input class="button" id="mute sound" type="button" value="Mute sound" onclick="mute()">
+        <input class="button" id="fps_enable" type="button" value="Show fps" onclick="fps_switch()">
         <input class="button" id="show-score" type="button" value="Show best results" onclick="show_score()">
     </div>
     <div class="description">
@@ -91,6 +93,10 @@ Arkanoid
                <td>При столкновении с платформой ничего не происходит. При падении на шипы даёт 100 очков.</td>
            </tr>
         </table>
+        <p>
+            © Все права на изображения персонажей и объектов, а также на звуковые эффекты принадлежат id Software.
+            Автор арканоида не извлекает коммерческой выгоды от их использования.
+        </p>
     </div>
 </div>
 <script src="{{url_for('static', filename='scripts/game_objects.js')}}"></script>

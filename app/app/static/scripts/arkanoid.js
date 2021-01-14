@@ -3,6 +3,7 @@ const context = canvas.getContext("2d");
 var requestId = 0;
 var stopped = false;
 var muted = false;
+var fps_enable = false;
 
 let left_arrow_pressed = false;
 let right_arrow_pressed = false;
@@ -39,9 +40,6 @@ if (event.keyCode == 37) {
 }
 });
 
-const BACKGROUND = new Image(config.CANVAS_WIDTH, config.CANVAS_HEIGHT);
-BACKGROUND.src = "/static/images/arkanoid-background.png";
-
 const paddle = new Paddle(context, canvas.width/2 - config.PADDLE_WIDTH / 2, canvas.height - config.PADDLE_HEIGHT - config.OFFSET_Y);
 const ball = new Ball(context, canvas.width/2, paddle.y - config.BALL_RADIUS);
 const left_torch = new Torch(context, 0, canvas.height);
@@ -63,153 +61,179 @@ var game_score = 0;
 var last_score = 0;
 var invulnerability_trigger = false;
 
+var frameCount, fps, fpsInterval, now, then, startTime, elapsed;
+
+function start_animation(fps)
+{
+    frameCount = 0;
+    fpsInterval = 1000 / fps;
+    then = performance.now();
+    startTime = then;
+    loop();
+}
+
 function loop() {
     if (!stopped)
     {
-        if (ball.invulnerability_duration > 0 && !invulnerability_trigger)
-        {
-            invulnerability_trigger = true;
-            $("canvas").css({"filter": "grayscale(100%) invert(100%)"});
-        }
-        if (ball.invulnerability_duration == 0 && invulnerability_trigger)
-        {
-            invulnerability_trigger = false;
-            $("canvas").css({"filter": "none"});
-        }
+        requestAnimationFrame(loop);
 
-        context.drawImage(BACKGROUND, 0, 0);
+        now = performance.now();
+        elapsed = now - then;
 
-        if ((lives == 0) && (ball.frame_count == 100))
-        {
-            $("canvas").css({"filter": "none"});
-            game_over();
-            return;
-        }
+        if (elapsed > fpsInterval) {
+            then = now - (elapsed % fpsInterval);
 
-        left_torch.draw();
-        right_torch.draw();
-
-        for (let i = 0; i < debris_list.length; i++)
-        {
-            current_debris = debris_list[i];
-            current_debris.draw();
-            if (current_debris.y > config.CANVAS_HEIGHT)
+            if (ball.invulnerability_duration > 0 && !invulnerability_trigger)
             {
-                debris_list.splice(i, 1);
+                invulnerability_trigger = true;
+                $("#background").css({"filter": "grayscale(100%) invert(100%)"});
+                $("canvas").css({"filter": "grayscale(100%) invert(100%)"});
+            }
+            if (ball.invulnerability_duration == 0 && invulnerability_trigger)
+            {
+                invulnerability_trigger = false;
+                $("#background").css({"filter": "none"});
+                $("canvas").css({"filter": "none"});
+            }
+
+            if ((lives == 0) && (ball.frame_count == 100))
+            {
+                $("#background").css({"filter": "none"});
+                $("canvas").css({"filter": "none"});
+                game_over();
+                return;
+            }
+
+            context.clearRect(0, 0, 800, 600);
+
+            left_torch.draw();
+            right_torch.draw();
+
+            for (let i = 0; i < debris_list.length; i++)
+            {
+                current_debris = debris_list[i];
+                current_debris.draw();
+                if (current_debris.y > config.CANVAS_HEIGHT)
+                {
+                    debris_list.splice(i, 1);
+                }
+            }
+            if (left_arrow_pressed)
+            {
+                paddle.speed[0] = -config.PADDLE_SPEED[0];
+            }
+            if (right_arrow_pressed)
+            {
+                paddle.speed[0] = config.PADDLE_SPEED[0];
+            }
+            if (up_arrow_pressed)
+            {
+                paddle.speed[1] = -config.PADDLE_SPEED[1];
+            }
+            if (down_arrow_pressed)
+            {
+                paddle.speed[1] = config.PADDLE_SPEED[1];
+            }
+            if (space_pressed)
+            {
+             ball.start();
+            }
+
+            paddle.move();
+            ball.move(paddle);
+
+            paddle.decrease_bonus_duration();
+            ball.decrease_bonus_duration();
+
+            ball.wallCollision();
+            ball.friction();
+
+            ball.paddleCollision(paddle);
+            if (bricks.length == 0)
+            {
+                current_lvl += 1;
+                level_complete(current_lvl);
+                return;
+            }
+
+            for (let i = 0; i < bricks.length; i++)
+            {
+                current_brick = bricks[i];
+                current_brick.draw();
+                ball.brickCollision(current_brick);
+                if (current_brick.type == "for_delete")
+                {
+                    current_brick.create_score_obj(score_list);
+                    bricks.splice(i, 1);
+                }
+            }
+
+            for (let i = 0; i < bonuses.length; i++)
+            {
+                current_bonus = bonuses[i];
+                current_bonus.move();
+                current_bonus.draw();
+                current_bonus.brickCollision(bricks);
+                current_bonus.paddleCollision(paddle);
+                current_bonus.ballCollision(ball);
+                if (current_bonus.type == "for_delete")
+                {
+                    current_bonus.create_score_obj(score_list);
+                    bonuses.splice(i, 1);
+                }
+            }
+
+            for (let i = 0; i < doomguys.length; i++)
+            {
+                current_doomguy = doomguys[i];
+                current_doomguy.move();
+                current_doomguy.draw();
+                current_doomguy.brickCollision(bricks);
+                current_doomguy.checkForShooting();
+                current_doomguy.ballCollision();
+                current_doomguy.friction();
+            }
+
+            paddle.draw();
+            ball.random_animation();
+            ball.draw();
+            draw_hud();
+            for (let i = 0; i < score_list.length; i++)
+            {
+                current_score = score_list[i];
+                current_score.draw();
+                current_score.move();
+                if (current_score.status == "for_delete")
+                {
+                    score_list.splice(i, 1);
+                }
+            }
+
+            for (let i = 0; i < message_list.length; i++)
+            {
+                current_message = message_list[i];
+                current_message.draw();
+                if (current_message.status == "for_delete")
+                {
+                    message_list.splice(i, 1);
+                }
+            }
+            paddle.speed = [0, 0]
+
+            context.drawImage(SPIKES, 26, config.CANVAS_HEIGHT - 24);
+
+            frameCount++;
+            if (fps_enable)
+            {
+                show_fps();
             }
         }
-        if (left_arrow_pressed)
-        {
-            paddle.speed[0] = -config.PADDLE_SPEED[0];
-        }
-        if (right_arrow_pressed)
-        {
-            paddle.speed[0] = config.PADDLE_SPEED[0];
-        }
-        if (up_arrow_pressed)
-        {
-            paddle.speed[1] = -config.PADDLE_SPEED[1];
-        }
-        if (down_arrow_pressed)
-        {
-            paddle.speed[1] = config.PADDLE_SPEED[1];
-        }
-        if (space_pressed)
-        {
-         ball.start();
-        }
-
-        paddle.move();
-        ball.move(paddle);
-
-        paddle.decrease_bonus_duration();
-        ball.decrease_bonus_duration();
-
-        ball.wallCollision();
-        ball.friction();
-
-        ball.paddleCollision(paddle);
-        if (bricks.length == 0)
-        {
-            current_lvl += 1;
-            level_complete(current_lvl);
-            return;
-        }
-
-        for (let i = 0; i < bricks.length; i++)
-        {
-            current_brick = bricks[i];
-            current_brick.draw();
-            ball.brickCollision(current_brick);
-            if (current_brick.type == "for_delete")
-            {
-                current_brick.create_score_obj(score_list);
-                bricks.splice(i, 1);
-            }
-        }
-
-        for (let i = 0; i < bonuses.length; i++)
-        {
-            current_bonus = bonuses[i];
-            current_bonus.move();
-            current_bonus.draw();
-            current_bonus.brickCollision(bricks);
-            current_bonus.paddleCollision(paddle);
-            current_bonus.ballCollision(ball);
-            if (current_bonus.type == "for_delete")
-            {
-                current_bonus.create_score_obj(score_list);
-                bonuses.splice(i, 1);
-            }
-        }
-
-        for (let i = 0; i < doomguys.length; i++)
-        {
-            current_doomguy = doomguys[i];
-            current_doomguy.move();
-            current_doomguy.draw();
-            current_doomguy.brickCollision(bricks);
-            current_doomguy.checkForShooting();
-            current_doomguy.ballCollision();
-            current_doomguy.friction();
-        }
-
-        paddle.draw();
-        ball.random_animation();
-        ball.draw();
-        draw_hud();
-        for (let i = 0; i < score_list.length; i++)
-        {
-            current_score = score_list[i];
-            current_score.draw();
-            current_score.move();
-            if (current_score.status == "for_delete")
-            {
-                score_list.splice(i, 1);
-            }
-        }
-
-        for (let i = 0; i < message_list.length; i++)
-        {
-            current_message = message_list[i];
-            current_message.draw();
-            if (current_message.status == "for_delete")
-            {
-                message_list.splice(i, 1);
-            }
-        }
-        paddle.speed = [0, 0]
-
-        context.drawImage(SPIKES, 26, config.CANVAS_HEIGHT - 24);
-
-        setTimeout(() => {
-        requestId = requestAnimationFrame(loop);
-        }, 1000 / config.FRAMES_RATE);
     }
 }
 
 function arkanoid_start(lvl)
 {
+    $("#arkanoid").focus();
     disable_keys();
     $('#top-scores').css({"opacity": "0"});
     $('#add-score-container').css({"opacity": "0"});
@@ -217,6 +241,7 @@ function arkanoid_start(lvl)
     $('#show-score').attr("disabled", true);
     $.ajax({
         url: "/projects/generate_arkanoid_lvl",
+        async: false,
         type: "GET",
         contentType: "application/json",
         data: {"lvl": lvl},
@@ -229,7 +254,7 @@ function arkanoid_start(lvl)
             doomguys.push.apply(doomguys, new_doomguys);
             message_list.push(new Message(context, "Level " + lvl));
             play_audio(start_sound);
-            loop();
+            start_animation(config.FPS);
         }
     });
 }
@@ -329,6 +354,8 @@ function game_over()
     score_list = [];
     message_list = [];
     debris_list = [];
+    ball.reset();
+    paddle.reset();
     current_lvl = 1;
     game_score = 0;
     lives = config.LIVES;
@@ -371,6 +398,7 @@ function add_score()
     }
     $.ajax({
         url: "/projects/add_score",
+        async: false,
         type: "POST",
         data: {"score": last_score, "user": username}
     }
@@ -393,7 +421,8 @@ function show_score(score, user)
         success: function(data)
             {
                 var rows_count = data.length;
-                var decoded_user = decodeURIComponent(user)
+                var decoded_user = decodeURIComponent(user);
+                console.log(data);
                 if (data.length > 20)
                 {
                     rows_count = 20;
@@ -449,12 +478,30 @@ function show_score(score, user)
         }
 }
 
+function fps_switch()
+{
+    $("#arkanoid").focus();
+    fps_enable = !fps_enable;
+}
+
+function show_fps()
+{
+    var sinceStart = now - startTime;
+    var currentFPS = Math.round(1000 / (sinceStart / frameCount) * 100) / 100;
+
+    context.textAlign = "center";
+    context.fillStyle = "#6F6F6F";
+    context.font = "24px roboto";
+    context.fillText("FPS: " + currentFPS, 400, 24);
+}
+
 function pause(requestId)
 {
+    $("#arkanoid").focus();
     if (stopped)
     {
         stopped = false;
-        loop();
+        start_animation(config.FPS);
     }
     else
     {
