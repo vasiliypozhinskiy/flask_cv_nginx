@@ -16,7 +16,7 @@ index
             </div>
             <div class="links">
                 <a class="nav-item link" href="https://github.com/vasiliypozhinskiy/" target="_blank">GitHub</a>
-                <a class="nav-item link" href="{{url_for('static', filename='files/резюме Пожинский В.pdf')}}" download>Download CV in pdf</a>
+                <a class="nav-item link" href="{{url_for('static', filename='files/python junior Пожинский В.pdf')}}" download>Download CV in pdf</a>
                 <a class="nav-item link" href="https://stepik.org/users/195223144/certificates" target="_blank">Certificates</a>
             </div>
         </div>
@@ -40,9 +40,9 @@ index
                 <li>
                     <p>
                     «Arkanoid».
-                    Игра на javascript с использованьем ajax. Уровни генерируются на python. Результаты сохраняются в базу данных Sqlite.
+                    Игра на javascript с использованием ajax. Уровни генерируются на python. Результаты можно сохранять в базу данных Sqlite.
                     </p>
-                    <a class="nav-item link" href="{{ url_for('arkanoid.show_arkanoid') }}" target="_blank">Подробнее</a>
+                    <a class="nav-item text-link" href="{{ url_for('arkanoid.show_arkanoid') }}" target="_blank">Подробнее</a>
                 </li>
                 <li>
                     <p>
@@ -50,7 +50,7 @@ index
                     Программа на PyQt5 для Windows и Linux для распределения проектов.
                     Сохраняет проекты в базу данных Sqlite.
                     </p>
-                    <a class="nav-item link" href="{{ url_for('projects.show_project', slug='project-planner')}}" target="_blank">Подробнее</a>
+                    <a class="nav-item text-link" href="{{ url_for('projects.show_project', slug='project-planner')}}" target="_blank">Подробнее</a>
                 </li>
                 <li>
                     <p>
@@ -58,7 +58,7 @@ index
                     Программа на PyQt5 для Windows и Linux для сбора вещей в дорогу.
                     Сохраняет наборы в базу данных Sqlite.
                     </p>
-                    <a class="nav-item link" href="{{ url_for('projects.show_project', slug='packing')}}" target="_blank">Подробнее</a>
+                    <a class="nav-item text-link" href="{{ url_for('projects.show_project', slug='packing')}}" target="_blank">Подробнее</a>
                 </li>
                 <li>
                     <p>
@@ -67,7 +67,7 @@ index
                     заданным ингредиентам с помощью API сайта spoonacular.com.
                     Полученные рецепты сохраняются в базу данных Sqlite.
                     </p>
-                    <a class="nav-item link" href="{{ url_for('projects.show_project', slug='get-recipe')}}" target="_blank">Подробнее</a>
+                    <a class="nav-item text-link" href="{{ url_for('projects.show_project', slug='get-recipe')}}" target="_blank">Подробнее</a>
                 </li>
                 <li>
                     <p>
@@ -77,7 +77,7 @@ index
                     современности. Описания картин перемежаются с интересными
                     фактами о совах.
                     </p>
-                    <a class="nav-item link" href="{{ url_for('projects.show_project', slug='virtual-owl-museum')}}" target="_blank">Подробнее</a>
+                    <a class="nav-item text-link" href="{{ url_for('projects.show_project', slug='virtual-owl-museum')}}" target="_blank">Подробнее</a>
                 </li>
             </ol>
 

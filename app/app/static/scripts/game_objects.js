@@ -1922,8 +1922,11 @@ class Message
 
 function play_audio(path)
 {
-    audio = new Audio(path);
-    audio.play();
+    if (!muted)
+    {
+        audio = new Audio(path);
+        audio.play();
+    }
 }
 
 

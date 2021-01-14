@@ -1,4 +1,5 @@
 import random
+from urllib.parse import unquote
 
 from flask import Blueprint, render_template, jsonify, request
 
@@ -9,7 +10,7 @@ from app import db
 arkanoid = Blueprint('arkanoid', __name__, template_folder='templates')
 
 
-@arkanoid.route('/projects/arkanoid')
+@arkanoid.route('/arkanoid')
 def show_arkanoid():
     return render_template('/arkanoid.html')
 
@@ -46,6 +47,9 @@ def generate_lvl():
 def add_score():
     score = int(request.form["score"])
     user = request.form["user"]
+    print(user)
+    user = unquote(user)
+    print(user)
     record = ArkanoidScore(username=user, score=score)
     db.session.add(record)
     db.session.commit()

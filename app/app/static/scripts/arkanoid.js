@@ -2,6 +2,7 @@ const canvas = document.getElementById("arkanoid");
 const context = canvas.getContext("2d");
 var requestId = 0;
 var stopped = false;
+var muted = false;
 
 let left_arrow_pressed = false;
 let right_arrow_pressed = false;
@@ -309,6 +310,8 @@ function create_doomguys(doomguys_list)
 
 function level_complete(current_lvl)
 {
+    bonuses.splice(0, bonuses.length);
+    doomguys.splice(0, doomguys.length);
     paddle.reset();
     ball.reset(paddle);
     arkanoid_start(current_lvl);
@@ -390,6 +393,7 @@ function show_score(score, user)
         success: function(data)
             {
                 var rows_count = data.length;
+                var decoded_user = decodeURIComponent(user)
                 if (data.length > 20)
                 {
                     rows_count = 20;
@@ -399,7 +403,7 @@ function show_score(score, user)
                 $("#top-scores").append("<tr><th width='10%'>№</th><th width='50%'>Name</th><th width='20%'>Score</th><th width='10%'>Date</th></tr>")
                 for (let i = 0; i < rows_count; i++)
                 {
-                    if ((score == data[i]["score"])&&(user == data[i]["username"])&&(!current_user_shown))
+                    if ((score == data[i]["score"])&&(decoded_user == data[i]["username"])&&(!current_user_shown))
                     {
                         current_user_shown = true;
                         $("#top-scores").append("<tr style='color: red'></tr>");
@@ -425,7 +429,7 @@ function show_score(score, user)
                     $("#top-scores > tr:last").append("<td align='center'>...</td><td align='center'>...</td><td align='center'>...</td><td align='center'>...</td>");
                     for (let i = rows_count; i < data.length; i++)
                     {
-                        if ((score == data[i]["score"])&&(user == data[i]["username"]))
+                        if ((score == data[i]["score"])&&(decoded_user == data[i]["username"]))
                         {
                             $("#top-scores").append("<tr style='color: red'></tr>");
                             $("#top-scores > tr:last").append("<td align='center'>" + (i + 1) + "</td>"
@@ -466,11 +470,17 @@ function disable_keys()
          return false;
      }
 }
+
 function enable_keys()
 {
      document.onkeydown = function (e)
      {
          return true;
      }
+}
+
+function mute()
+{
+    muted = !muted;
 }
 

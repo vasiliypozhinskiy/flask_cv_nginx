@@ -27,3 +27,8 @@
 .right-content {
                 text-align: justify !important;
                 }
+
+.text-link {
+       font-size: 16px;
+       margin: 0;
+       }
