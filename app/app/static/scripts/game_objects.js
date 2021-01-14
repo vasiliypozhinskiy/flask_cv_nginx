@@ -531,7 +531,7 @@ class Ball
 
  }
 
- reset(paddle)
+ reset()
  {
     this.isBallOnPaddle = true;
     this.fall = false;

@@ -40,6 +40,7 @@ input {
              width: 80%;
              display: block;
              position: absolute;
+             z-index: 100;
              left: 10%;
              top: 5%;
              opacity: 0;
@@ -51,6 +52,7 @@ input {
        transition: 1s;
        width: 80%;
        position: absolute;
+       z-index: 110;
        left: 10%;
        top: 30%;
       }
@@ -78,6 +80,8 @@ input {
 
 #arkanoid {
           position: relative;
-          z-index: 100;
+          z-index: 10;
           }
+
+
 

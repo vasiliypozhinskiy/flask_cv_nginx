@@ -4,6 +4,7 @@ var requestId = 0;
 var stopped = false;
 var muted = false;
 var fps_enable = false;
+var game_ended = false;
 
 let left_arrow_pressed = false;
 let right_arrow_pressed = false;
@@ -83,6 +84,8 @@ function loop() {
         if (elapsed > fpsInterval) {
             then = now - (elapsed % fpsInterval);
 
+            context.clearRect(0, 0, 800, 600);
+
             if (ball.invulnerability_duration > 0 && !invulnerability_trigger)
             {
                 invulnerability_trigger = true;
@@ -101,10 +104,12 @@ function loop() {
                 $("#background").css({"filter": "none"});
                 $("canvas").css({"filter": "none"});
                 game_over();
-                return;
             }
 
-            context.clearRect(0, 0, 800, 600);
+            if (game_ended)
+            {
+                return;
+            }
 
             left_torch.draw();
             right_torch.draw();
@@ -233,6 +238,7 @@ function loop() {
 
 function arkanoid_start(lvl)
 {
+    game_ended = false;
     $("#arkanoid").focus();
     disable_keys();
     $('#top-scores').css({"opacity": "0"});
@@ -335,8 +341,8 @@ function create_doomguys(doomguys_list)
 
 function level_complete(current_lvl)
 {
-    bonuses.splice(0, bonuses.length);
-    doomguys.splice(0, doomguys.length);
+    bonuses = [];
+    doomguys = [];
     paddle.reset();
     ball.reset(paddle);
     arkanoid_start(current_lvl);
@@ -344,7 +350,10 @@ function level_complete(current_lvl)
 
 function game_over()
 {
+    game_ended = true;
     enable_keys();
+    $('#start').attr("disabled", false);
+    $('#show-score').attr("disabled", false);
     show_score_form(game_score);
 
     bricks = [];
@@ -359,8 +368,6 @@ function game_over()
     current_lvl = 1;
     game_score = 0;
     lives = config.LIVES;
-    $('#start').attr("disabled", false);
-    $('#show-score').attr("disabled", false);
 }
 
 function draw_hud()
@@ -396,6 +403,8 @@ function add_score()
     {
         return;
     }
+    $('#add-score-container').css({"opacity": "0"});
+    $("#add-score-form")[0].reset();
     $.ajax({
         url: "/projects/add_score",
         async: false,
@@ -403,8 +412,6 @@ function add_score()
         data: {"score": last_score, "user": username}
     }
     );
-    $('#add-score-container').css({"opacity": "0"});
-    $("#add-score-form")[0].reset();
     show_score(last_score, username);
 }
 
@@ -422,7 +429,6 @@ function show_score(score, user)
             {
                 var rows_count = data.length;
                 var decoded_user = decodeURIComponent(user);
-                console.log(data);
                 if (data.length > 20)
                 {
                     rows_count = 20;
