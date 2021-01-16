@@ -8,7 +8,7 @@ arkanoidConfig = {
     "PADDLE_COLOR": "#4B4B4B",
     "CANVAS_WIDTH": 800,
     "CANVAS_HEIGHT": 600,
-    "OFFSET_X": 30,
+    "OFFSET_X": 15,
     "OFFSET_Y":  5,
     "PADDLE_SPEED": [8, 3],
     "BALL_RADIUS": 15,

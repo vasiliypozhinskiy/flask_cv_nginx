@@ -64,6 +64,8 @@ var invulnerability_trigger = false;
 
 var frameCount, fps, fpsInterval, now, then, startTime, elapsed;
 
+var last_loop = performance.now();
+
 function start_animation(fps)
 {
     frameCount = 0;
@@ -254,10 +256,12 @@ function arkanoid_start(lvl)
         success: function (data) {
             let new_bricks = create_bricks(data["bricks"]);
             bricks.push.apply(bricks, new_bricks);
-            let new_bonuses = create_bonuses(data["bonuses"]);
-            bonuses.push.apply(bonuses, new_bonuses);
-            let new_doomguys = create_doomguys(data["doomguys"]);
-            doomguys.push.apply(doomguys, new_doomguys);
+//            let new_bonuses = create_bonuses(data["bonuses"]);
+//            bonuses.push.apply(bonuses, new_bonuses);
+//            let new_doomguys = create_doomguys(data["doomguys"]);
+//            doomguys.push.apply(doomguys, new_doomguys);
+            bonuses = create_bonuses(data["bonuses"]);
+            doomguys = create_doomguys(data["doomguys"]);
             message_list.push(new Message(context, "Level " + lvl));
             play_audio(start_sound);
             start_animation(config.FPS);
@@ -344,7 +348,7 @@ function level_complete(current_lvl)
     bonuses = [];
     doomguys = [];
     paddle.reset();
-    ball.reset(paddle);
+    ball.reset();
     arkanoid_start(current_lvl);
 }
 
@@ -409,7 +413,7 @@ function add_score()
         url: "/projects/add_score",
         async: false,
         type: "POST",
-        data: {"score": last_score, "user": username}
+        data: {"score": last_score, "user": username, "date": Date.now()}
     }
     );
     show_score(last_score, username);
@@ -492,13 +496,13 @@ function fps_switch()
 
 function show_fps()
 {
-    var sinceStart = now - startTime;
-    var currentFPS = Math.round(1000 / (sinceStart / frameCount) * 100) / 100;
-
+    var this_loop = performance.now()
+    var currentFPS = Math.round(1000 / (this_loop - last_loop));
     context.textAlign = "center";
     context.fillStyle = "#6F6F6F";
     context.font = "24px roboto";
     context.fillText("FPS: " + currentFPS, 400, 24);
+    last_loop = this_loop;
 }
 
 function pause(requestId)

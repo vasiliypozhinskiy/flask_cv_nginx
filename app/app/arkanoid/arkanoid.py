@@ -1,4 +1,5 @@
 import random
+from datetime import datetime
 from urllib.parse import unquote
 
 from flask import Blueprint, render_template, jsonify, request
@@ -46,9 +47,9 @@ def generate_lvl():
 @arkanoid.route('/add_score', methods=['POST'])
 def add_score():
     score = int(request.form["score"])
-    user = request.form["user"]
-    user = unquote(user)
-    record = ArkanoidScore(username=user, score=score)
+    user = unquote(request.form["user"])
+    date = datetime.fromtimestamp(int(request.form["date"]) / 1000.0)
+    record = ArkanoidScore(username=user, score=score, date=date)
     db.session.add(record)
     db.session.commit()
     return "", 204
@@ -65,14 +66,16 @@ def show_score():
 
 def generate_brick(x, y, lvl):
     seed = random.randint(0, 100)
-    if seed <= 5 + 3 * lvl:
-        brick = {"type": 'brown', "x": x, "y": y, "has_doomguy": False}
-    elif seed <= 5 + 6 * lvl:
+    if seed <= 10 + 2 * lvl:
         brick = {"type": 'grey', "x": x, "y": y, "has_doomguy": False}
-    elif seed <= 20 + 60 / lvl:
-        brick = {"type": 'default', "x": x, "y": y, "has_doomguy": False}
+    elif seed <= 30 + 2 * lvl:
+        brick = {"type": 'brown', "x": x, "y": y, "has_doomguy": False}
     else:
-        return None
+        seed = random.randint(0, 100)
+        if seed <= 50:
+            brick = {"type": 'default', "x": x, "y": y, "has_doomguy": False}
+        else:
+            return None
     return brick
 
 
@@ -106,7 +109,7 @@ def generate_bonus(brick):
         bonus = {"type": "invulnerability", "x": brick["x"], "y": brick["y"]}
     elif seed >= 60:
         bonus = {"type": "speed", "x": brick["x"], "y": brick["y"]}
-    elif seed >= 55:
+    elif seed >= 50:
         bonus = {"type": "barrel", "x": brick["x"], "y": brick["y"]}
     else:
         return None

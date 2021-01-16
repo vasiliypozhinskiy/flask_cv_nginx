@@ -37,10 +37,10 @@ class Paddle
         {
             this.context.globalAlpha = 0.1;
         }
-        if (this.mega_duration > 0 && this.mega_activated)
+        if (this.mega_activated)
         {
             this.mega_duration -= 1;
-            if (this.mega_duration == 0)
+            if (this.mega_duration <= 0)
             {
                 this.change_size(-100, -20)
                 this.mega_activated = false;
@@ -533,10 +533,13 @@ class Ball
 
  reset()
  {
+    if (this.fall)
+    {
+        this.hp = config.BALL_HP;
+    }
     this.isBallOnPaddle = true;
     this.fall = false;
     this.falling = false;
-    this.hp = config.BALL_HP;
     this.x = paddle.x + paddle.width / 2;
     this.y = paddle.y - this.radius;
     this.frame_count = 0;
@@ -546,7 +549,7 @@ class Ball
     this.invulnerability_duration = 0;
  }
 
- move(paddle)
+ move()
  {
     if (this.falling)
     {
@@ -765,6 +768,47 @@ class GreyBrick extends Brick
         this.context.stroke();
         this.context.closePath();
     }
+
+    collision(damage)
+    {
+    this.hp -= damage;
+    if (this.hp <= 0)
+        {
+            this.type = "for_delete";
+            play_audio(this.break_sound);
+            this.create_debris();
+            game_score += this.score;
+            let seed = Math.random();
+            if (seed > 0.8)
+            {
+                bonuses.push(new LifeBonus(context, "life", this.x, this.y + this.height / 2));
+            }
+            else if (seed > 0.6)
+            {
+                bonuses.push(new InvisibilityBonus(context, "invisibility", this.x, this.y + this.height / 2));
+            }
+            else if (seed > 0.5)
+            {
+                bonuses.push(new MegaBonus(context, "mega", this.x, this.y + this.height / 2));
+            }
+            else if (seed > 0.4)
+            {
+                bonuses.push(new SpeedBonus(context, "hp", this.x, this.y + this.height / 2));
+            }
+            else if (seed > 0.3)
+            {
+                bonuses.push(new InvulnerabilityBonus(context, "invulnerability", this.x, this.y + this.height / 2));
+            }
+            else if (seed > 0.2)
+            {
+                bonuses.push(new HpBonus(context, "speed", this.x, this.y + this.height / 2));
+            }
+            else
+            {
+                bonuses.push(new Barrel(context, "barrel", this.x, this.y + this.height / 2));
+            }
+        }
+    }
 }
 
 class Bonus
@@ -899,6 +943,7 @@ class LifeBonus extends Bonus
             if (ball.hp < config.BALL_HP)
             {
                 ball.hp = config.BALL_HP;
+                ball.falling = false;
             }
             this.type = "for_delete";
         }
@@ -1182,6 +1227,7 @@ class HpBonus extends Bonus
             this.was_ball_collision = true;
             play_audio(this.ball_item_up_sound);
             ball.hp += 2;
+            ball.falling = false;
             this.type = "for_delete";
         }
     }
