@@ -62,30 +62,27 @@ var game_score = 0;
 var last_score = 0;
 var invulnerability_trigger = false;
 
-var frameCount, fps, fpsInterval, now, then, startTime, elapsed;
+const FRAME_MIN_TIME = (1000/60) * (60 / config.FPS) - (1000/60) * 0.5;
 
-var last_loop = performance.now();
+var last_loop;
 
 function start_animation(fps)
 {
-    frameCount = 0;
-    fpsInterval = 1000 / fps;
-    then = performance.now();
-    startTime = then;
+    last_loop = performance.now();
     loop();
 }
 
 function loop() {
     if (!stopped)
     {
-        requestAnimationFrame(loop);
-
-        now = performance.now();
-        elapsed = now - then;
-
-        if (elapsed > fpsInterval) {
-            then = now - (elapsed % fpsInterval);
-
+        this_loop = performance.now()
+        if (this_loop - last_loop < FRAME_MIN_TIME)
+        {
+            requestAnimationFrame(loop);
+            return;
+        }
+        else
+        {
             context.clearRect(0, 0, 800, 600);
 
             if (ball.invulnerability_duration > 0 && !invulnerability_trigger)
@@ -229,11 +226,13 @@ function loop() {
 
             context.drawImage(SPIKES, 26, config.CANVAS_HEIGHT - 24);
 
-            frameCount++;
             if (fps_enable)
             {
                 show_fps();
             }
+
+            last_loop = performance.now();
+            requestAnimationFrame(loop);
         }
     }
 }
@@ -496,13 +495,11 @@ function fps_switch()
 
 function show_fps()
 {
-    var this_loop = performance.now()
     var currentFPS = Math.round(1000 / (this_loop - last_loop));
     context.textAlign = "center";
     context.fillStyle = "#6F6F6F";
     context.font = "24px roboto";
     context.fillText("FPS: " + currentFPS, 400, 24);
-    last_loop = this_loop;
 }
 
 function pause(requestId)

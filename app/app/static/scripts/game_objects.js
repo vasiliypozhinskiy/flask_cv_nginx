@@ -1456,15 +1456,17 @@ class Doomguy
         {
             this.frame_count = 0;
         }
+
         if (this.dead && this.frame_count < 60)
         {
             this.frame_count++;
         }
-        if (this.shooting && this.frame_count <= 100)
+
+        if (this.shooting && this.frame_count <= 120)
         {
             this.frame_count++;
         }
-        if (this.shooting && this.frame_count > 100)
+        if (this.shooting && this.frame_count > 120)
         {
             this.shooting = false;
             this.frame_count = 0;
@@ -1496,7 +1498,7 @@ class Doomguy
                 return;
             }
         }
-        if (!this.dead && this.shooting && this.frame_count <= 100)
+        if (!this.dead && this.shooting && this.frame_count <= 120)
         {
             if (this.x < ball.x)
             {
@@ -1767,14 +1769,15 @@ class Debris
     constructor(context, image_src, x, y)
     {
         this.context = context;
-        this.x = x;
-        this.y = y;
+        this.x = [x, x, x, x];
+        this.y = [y, y, y, y];
         this.width = config.BRICK_WIDTH;
         this.height = config.BRICK_HEIGHT;
         this.image = new Image();
         this.image.src = image_src;
         this.degrees = [0, 0, 0, 0];
-        this.speed = [0, 0];
+        this.speed_x = [0, 0, 0, 0];
+        this.speed_y = [0, 0, 0, 0];
 
         this.clip_line1_1 = [Math.floor(Math.random() * this.width) - this.width / 2, -this.height / 2];
         this.clip_line1_2 = [Math.floor(Math.random() * this.width) - this.width / 2, this.height / 2];
@@ -1792,25 +1795,26 @@ class Debris
         for(let i = 0; i < 4; i++)
         {
             this.context.save();
-            this.context.translate(this.x + this.width / 2, this.y + this.height / 2);
+            this.context.translate(this.x[i] + this.width / 2, this.y[i] + this.height / 2);
             this.context.rotate(this.degrees[i] * Math.PI / 180);
             this.create_shard(i);
-            this.context.drawImage(this.image, -this.width / 2, -this.height / 2 + i);
+            this.context.drawImage(this.image, -this.width / 2, -this.height / 2);
             this.context.closePath();
             this.draw_crack(i);
             this.context.restore();
             if (i <= 1)
             {
                 this.degrees[i] = (this.degrees[i] + Math.random() * 3) % 360;
+                this.x[i] -= this.speed_x[i] + Math.random() * 1.5;
             }
             else
             {
                 this.degrees[i] = (this.degrees[i] - Math.random() * 3) % 360;
+                this.x[i] += this.speed_x[i] + Math.random() * 1.5;
             }
+            this.y[i] += this.speed_y[i];
+            this.speed_y[i] += config.FALLING_SPEED + Math.random() / 5;
         }
-        this.x += this.speed[0];
-        this.y += this.speed[1];
-        this.speed[1] += config.FALLING_SPEED;
     }
 
     create_shard(i)
@@ -1961,7 +1965,7 @@ class Message
         this.context.globalAlpha = this.opacity;
         this.context.fillText(this.text, config.CANVAS_WIDTH / 2, config.CANVAS_HEIGHT / 2);
         this.context.globalAlpha = 1;
-        this.opacity -= 0.005;
+        this.opacity -= 0.002;
         if (this.opacity <= 0)
         {
             this.status = "for_delete";
