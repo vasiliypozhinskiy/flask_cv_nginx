@@ -66,7 +66,7 @@ def show_score():
 
 def generate_brick(x, y, lvl):
     seed = random.randint(0, 100)
-    if seed <= 10 + 2 * lvl:
+    if seed <= 5 + 2 * lvl:
         brick = {"type": 'grey', "x": x, "y": y, "has_doomguy": False}
     elif seed <= 30 + 2 * lvl:
         brick = {"type": 'brown', "x": x, "y": y, "has_doomguy": False}
@@ -103,11 +103,11 @@ def generate_bonus(brick):
         bonus = {"type": "invisibility", "x": brick["x"], "y": brick["y"]}
     elif seed >= 85:
         bonus = {"type": "mega", "x": brick["x"], "y": brick["y"]}
-    elif seed >= 70:
+    elif seed >= 75:
         bonus = {"type": "hp", "x": brick["x"], "y": brick["y"]}
-    elif seed >= 65:
+    elif seed >= 70:
         bonus = {"type": "invulnerability", "x": brick["x"], "y": brick["y"]}
-    elif seed >= 60:
+    elif seed >= 65:
         bonus = {"type": "speed", "x": brick["x"], "y": brick["y"]}
     elif seed >= 50:
         bonus = {"type": "barrel", "x": brick["x"], "y": brick["y"]}

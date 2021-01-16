@@ -616,8 +616,16 @@ class Brick
         this.context = context;
         this.hp = 10;
         this.score = 10;
+        this.seed = Math.random();
 
         this.break_sound = "/static/sound/brick.wav";
+
+        this.clip_line1_1 = [Math.floor(this.x + Math.random() * this.width), this.y];
+        this.clip_line1_2 = [Math.floor(this.x + Math.random() * this.width), this.y + this.height];
+        this.clip_line2_1 = [this.x, Math.floor(Math.random() * this.height + this.y)];
+        this.clip_line2_2 = [this.x + this.width, Math.floor(Math.random() * this.height + this.y)];
+        this.intersection = this.findIntersectionPoint(this.clip_line1_1[0], this.clip_line1_2[0], this.clip_line1_1[1], this.clip_line1_2[1],
+        this.clip_line2_1[0], this.clip_line2_2[0], this.clip_line2_1[1], this.clip_line2_1[1]);
     }
 
     collision(damage)
@@ -639,7 +647,25 @@ class Brick
 
     create_debris()
     {
-        debris_list.push(new Debris(this.context, this.image1.src, this.x, this.y));
+        debris_list.push(new Debris(this.context, this.image.src, this.x, this.y, this.intersection));
+    }
+
+    findIntersectionPoint(X11, X12, Y11, Y12, X21, X22, Y21, Y22)
+    {
+        let a1 = Y11 - Y12;
+        let b1 = X12 - X11;
+        let a2 = Y21 - Y22;
+        let b2 = X22 - X21;
+
+        let d = a1 * b2 - a2 * b1;
+
+
+        let c1 = Y12 * X11 - X12 * Y11;
+        let c2 = Y22 * X21 - X22 * Y21;
+
+        let xi = (b1 * c2 - b2 * c1) / d;
+        let yi = (a2 * c1 - a1 * c2) / d;
+        return [xi, yi];
     }
 }
 
@@ -651,28 +677,35 @@ class DefaultBrick extends Brick
         this.hp = 20;
         this.score = 10;
 
-        this.image1 = new Image(this.width, this.height);
-        this.image1.src = "/static/images/default brick 1.png";
-        this.image2 = new Image(this.width, this.height);
-        this.image2.src = "/static/images/default brick 2.png";
+        this.image = new Image(this.width, this.height);
+        this.image.src = "/static/images/default brick.png";
     }
 
     draw()
     {
-        if (this.hp == 20)
+        this.context.drawImage(this.image, this.x, this.y);
+        this.context.strokeStyle = "black";
+        this.context.lineWidth = 3;
+        if (this.hp < 20 && this.seed > 0.5)
         {
-            this.context.drawImage(this.image1, this.x, this.y);
+            this.context.beginPath();
+            this.context.moveTo(this.x, this.y);
+            this.context.lineTo(this.intersection[0], this.intersection[1]);
+            this.context.lineTo(this.x + this.width,  this.y + this.height);
+            this.context.stroke();
         }
-        if (this.hp < 20 && this.hp > 0)
+        if (this.hp < 20 && this.seed <= 0.5)
         {
-            this.context.drawImage(this.image2, this.x, this.y);
+            this.context.beginPath();
+            this.context.moveTo(this.x + this.width, this.y);
+            this.context.lineTo(this.intersection[0], this.intersection[1]);
+            this.context.lineTo(this.x,  this.y + this.height);
+            this.context.stroke();
         }
         this.context.beginPath();
         this.context.rect(this.x, this.y, this.width, this.height);
-        this.context.strokeStyle = "black";
-        this.context.lineWidth = 3;
-        this.context.stroke();
         this.context.closePath();
+        this.context.stroke();
     }
 }
 
@@ -686,40 +719,61 @@ class BrownBrick extends Brick
 
         this.width = 80;
         this.height = 50;
-        this.image1 = new Image(this.width, this.height);
-        this.image1.src = "/static/images/brown brick 1.png";
-        this.image2 = new Image(this.width, this.height);
-        this.image2.src = "/static/images/brown brick 2.png";
-        this.image3 = new Image(this.width, this.height);
-        this.image3.src = "/static/images/brown brick 3.png";
-        this.image4 = new Image(this.width, this.height);
-        this.image4.src = "/static/images/brown brick 4.png";
+        this.image = new Image(this.width, this.height);
+        this.image.src = "/static/images/brown brick.png";
     }
 
     draw()
     {
-        if (this.hp == 40)
-        {
-            this.context.drawImage(this.image1, this.x, this.y);
-        }
-        if (this.hp < 40 && this.hp >= 30)
-        {
-            this.context.drawImage(this.image2, this.x, this.y);
-        }
-        if (this.hp < 30 && this.hp >= 20)
-        {
-            this.context.drawImage(this.image3, this.x, this.y);
-        }
-        if (this.hp < 20 && this.hp > 0)
-        {
-            this.context.drawImage(this.image4, this.x, this.y);
-        }
-        this.context.beginPath();
-        this.context.rect(this.x, this.y, this.width, this.height);
+        this.context.drawImage(this.image, this.x, this.y);
         this.context.strokeStyle = "black";
         this.context.lineWidth = 3;
+        this.context.beginPath();
+        this.context.rect(this.x, this.y, this.width, this.height);
         this.context.stroke();
         this.context.closePath();
+        if (this.hp > 20)
+        {
+            this.context.lineWidth = 1;
+        }
+        if (this.hp < 40)
+        {
+            if (this.seed > 0.5)
+            {
+                this.context.beginPath();
+                this.context.moveTo(this.x, this.y);
+                this.context.lineTo(this.intersection[0], this.intersection[1]);
+                this.context.lineTo(this.x + this.width,  this.y + this.height);
+                this.context.stroke();
+            }
+            else
+            {
+                this.context.beginPath();
+                this.context.moveTo(this.x + this.width, this.y);
+                this.context.lineTo(this.intersection[0], this.intersection[1]);
+                this.context.lineTo(this.x,  this.y + this.height);
+                this.context.stroke();
+            }
+        }
+        if (this.hp < 20)
+        {
+            if (this.seed > 0.5)
+            {
+                this.context.beginPath();
+                this.context.moveTo(this.x + this.width, this.y);
+                this.context.lineTo(this.intersection[0], this.intersection[1]);
+                this.context.lineTo(this.x,  this.y + this.height);
+                this.context.stroke();
+            }
+            else
+            {
+                this.context.beginPath();
+                this.context.moveTo(this.x, this.y);
+                this.context.lineTo(this.intersection[0], this.intersection[1]);
+                this.context.lineTo(this.x + this.width,  this.y + this.height);
+                this.context.stroke();
+            }
+        }
     }
 }
 
@@ -733,40 +787,61 @@ class GreyBrick extends Brick
 
         this.width = 80;
         this.height = 50;
-        this.image1 = new Image(this.width, this.height);
-        this.image1.src = "/static/images/Grey brick 1.png";
-        this.image2 = new Image(this.width, this.height);
-        this.image2.src = "/static/images/Grey brick 2.png";
-        this.image3 = new Image(this.width, this.height);
-        this.image3.src = "/static/images/Grey brick 3.png";
-        this.image4 = new Image(this.width, this.height);
-        this.image4.src = "/static/images/Grey brick 4.png";
+        this.image = new Image(this.width, this.height);
+        this.image.src = "/static/images/Grey brick.png";
     }
 
     draw()
     {
-        if (this.hp == 40)
-        {
-            this.context.drawImage(this.image1, this.x, this.y);
-        }
-        if (this.hp < 40 && this.hp >= 30)
-        {
-            this.context.drawImage(this.image2, this.x, this.y);
-        }
-        if (this.hp < 30 && this.hp >= 20)
-        {
-            this.context.drawImage(this.image3, this.x, this.y);
-        }
-        if (this.hp < 20 && this.hp > 0)
-        {
-            this.context.drawImage(this.image4, this.x, this.y);
-        }
-        this.context.beginPath();
-        this.context.rect(this.x, this.y, this.width, this.height);
+        this.context.drawImage(this.image, this.x, this.y);
         this.context.strokeStyle = "black";
         this.context.lineWidth = 3;
+        this.context.beginPath();
+        this.context.rect(this.x, this.y, this.width, this.height);
         this.context.stroke();
         this.context.closePath();
+        if (this.hp > 20)
+        {
+            this.context.lineWidth = 1;
+        }
+        if (this.hp < 40)
+        {
+            if (this.seed > 0.5)
+            {
+                this.context.beginPath();
+                this.context.moveTo(this.x, this.y);
+                this.context.lineTo(this.intersection[0], this.intersection[1]);
+                this.context.lineTo(this.x + this.width,  this.y + this.height);
+                this.context.stroke();
+            }
+            else
+            {
+                this.context.beginPath();
+                this.context.moveTo(this.x + this.width, this.y);
+                this.context.lineTo(this.intersection[0], this.intersection[1]);
+                this.context.lineTo(this.x,  this.y + this.height);
+                this.context.stroke();
+            }
+        }
+        if (this.hp < 20)
+        {
+            if (this.seed > 0.5)
+            {
+                this.context.beginPath();
+                this.context.moveTo(this.x + this.width, this.y);
+                this.context.lineTo(this.intersection[0], this.intersection[1]);
+                this.context.lineTo(this.x,  this.y + this.height);
+                this.context.stroke();
+            }
+            else
+            {
+                this.context.beginPath();
+                this.context.moveTo(this.x, this.y);
+                this.context.lineTo(this.intersection[0], this.intersection[1]);
+                this.context.lineTo(this.x + this.width,  this.y + this.height);
+                this.context.stroke();
+            }
+        }
     }
 
     collision(damage)
@@ -779,23 +854,23 @@ class GreyBrick extends Brick
             this.create_debris();
             game_score += this.score;
             let seed = Math.random();
-            if (seed > 0.8)
+            if (seed > 0.95)
             {
                 bonuses.push(new LifeBonus(context, "life", this.x, this.y + this.height / 2));
             }
-            else if (seed > 0.6)
+            else if (seed > 0.8)
             {
                 bonuses.push(new InvisibilityBonus(context, "invisibility", this.x, this.y + this.height / 2));
             }
-            else if (seed > 0.5)
+            else if (seed > 0.7)
             {
                 bonuses.push(new MegaBonus(context, "mega", this.x, this.y + this.height / 2));
             }
-            else if (seed > 0.4)
+            else if (seed > 0.6)
             {
                 bonuses.push(new SpeedBonus(context, "hp", this.x, this.y + this.height / 2));
             }
-            else if (seed > 0.3)
+            else if (seed > 0.4)
             {
                 bonuses.push(new InvulnerabilityBonus(context, "invulnerability", this.x, this.y + this.height / 2));
             }
@@ -1766,7 +1841,7 @@ class Torch
 
 class Debris
 {
-    constructor(context, image_src, x, y)
+    constructor(context, image_src, x, y, intersection)
     {
         this.context = context;
         this.x = [x, x, x, x];
@@ -1779,12 +1854,7 @@ class Debris
         this.speed_x = [0, 0, 0, 0];
         this.speed_y = [0, 0, 0, 0];
 
-        this.clip_line1_1 = [Math.floor(Math.random() * this.width) - this.width / 2, -this.height / 2];
-        this.clip_line1_2 = [Math.floor(Math.random() * this.width) - this.width / 2, this.height / 2];
-        this.clip_line2_1 = [-this.width / 2, Math.floor(Math.random() * this.height) - this.height / 2];
-        this.clip_line2_2 = [this.width / 2, Math.floor(Math.random() * this.height) - this.height / 2];
-        this.intersection = this.findIntersectionPoint(this.clip_line1_1[0], this.clip_line1_2[0], this.clip_line1_1[1], this.clip_line1_2[1],
-        this.clip_line2_1[0], this.clip_line2_2[0], this.clip_line2_1[1], this.clip_line2_1[1]);
+        this.intersection = [intersection[0] - this.x[0] - this.width / 2, intersection[1] - this.y[0] - this.height / 2];
     }
 
     draw()
@@ -1822,15 +1892,15 @@ class Debris
         if (i == 0)
         {
             this.context.beginPath();
-            this.context.moveTo(-this.width / 2, this.height / 2);
+            this.context.moveTo(-this.width / 2, -this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
-            this.context.lineTo(this.width / 2, this.height / 2);
+            this.context.lineTo(-this.width / 2, this.height / 2);
             this.context.clip();
         }
         if (i == 1)
         {
             this.context.beginPath();
-            this.context.moveTo(-this.width / 2, this.height / 2);
+            this.context.moveTo(this.width / 2, -this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
             this.context.lineTo(-this.width / 2, -this.height / 2);
             this.context.clip();
@@ -1846,9 +1916,9 @@ class Debris
         if (i == 3)
         {
             this.context.beginPath();
-            this.context.moveTo(-this.width / 2, -this.height / 2);
+            this.context.moveTo(-this.width / 2, this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
-            this.context.lineTo(this.width / 2, -this.height / 2);
+            this.context.lineTo(this.width / 2, this.height / 2);
             this.context.clip();
         }
     }
@@ -1858,16 +1928,16 @@ class Debris
         if (i == 0)
         {
             this.context.beginPath();
-            this.context.moveTo(-this.width / 2, this.height / 2);
+            this.context.moveTo(-this.width / 2, -this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
-            this.context.lineTo(this.width / 2, this.height / 2);
+            this.context.lineTo(-this.width / 2, this.height / 2);
             this.context.closePath();
             this.context.stroke();
         }
         if (i == 1)
         {
             this.context.beginPath();
-            this.context.moveTo(-this.width / 2, this.height / 2);
+            this.context.moveTo(this.width / 2, -this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
             this.context.lineTo(-this.width / 2, -this.height / 2);
             this.context.closePath();
@@ -1885,30 +1955,12 @@ class Debris
         if (i == 3)
         {
             this.context.beginPath();
-            this.context.moveTo(-this.width / 2, -this.height / 2);
+            this.context.moveTo(-this.width / 2, this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
-            this.context.lineTo(this.width / 2, -this.height / 2);
+            this.context.lineTo(this.width / 2, this.height / 2);
             this.context.closePath();
             this.context.stroke();
         }
-    }
-
-    findIntersectionPoint(X11, X12, Y11, Y12, X21, X22, Y21, Y22)
-    {
-        let a1 = Y11 - Y12;
-        let b1 = X12 - X11;
-        let a2 = Y21 - Y22;
-        let b2 = X22 - X21;
-
-        let d = a1 * b2 - a2 * b1;
-
-
-        let c1 = Y12 * X11 - X12 * Y11;
-        let c2 = Y22 * X21 - X22 * Y21;
-
-        let xi = (b1 * c2 - b2 * c1) / d;
-        let yi = (a2 * c1 - a1 * c2) / d;
-        return [xi, yi];
     }
 }
 
