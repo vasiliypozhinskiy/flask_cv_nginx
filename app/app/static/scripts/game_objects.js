@@ -1933,7 +1933,7 @@ class Score_obj
         this.context.globalAlpha = this.opacity;
         this.context.fillText(this.score, this.x, this.y);
         this.context.globalAlpha = 1;
-        this.opacity -= 0.05;
+        this.opacity -= 0.03;
         if (this.opacity <= 0)
         {
             this.status = "for_delete";
