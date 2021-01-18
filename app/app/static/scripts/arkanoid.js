@@ -1,3 +1,5 @@
+"use strict";
+
 const canvas = document.getElementById("arkanoid");
 const context = canvas.getContext("2d");
 var requestId = 0;
@@ -6,11 +8,11 @@ var muted = false;
 var fps_enable = false;
 var game_ended = false;
 
-let left_arrow_pressed = false;
-let right_arrow_pressed = false;
-let up_arrow_pressed = false;
-let down_arrow_pressed = false;
-let space_pressed = false;
+var left_arrow_pressed = false;
+var right_arrow_pressed = false;
+var up_arrow_pressed = false;
+var down_arrow_pressed = false;
+var space_pressed = false;
 
 document.addEventListener("keydown", function(event)
 {
@@ -43,6 +45,7 @@ if (event.keyCode == 37) {
 
 const paddle = new Paddle(context, canvas.width/2 - config.PADDLE_WIDTH / 2, canvas.height - config.PADDLE_HEIGHT - config.OFFSET_Y);
 const ball = new Ball(context, canvas.width/2, paddle.y - config.BALL_RADIUS);
+
 const left_torch = new Torch(context, 0, canvas.height);
 const right_torch = new Torch(context, canvas.width - 26, canvas.height);
 const SPIKES = new Image();
@@ -64,11 +67,11 @@ var invulnerability_trigger = false;
 
 const FRAME_MIN_TIME = (1000/60) * (60 / config.FPS) - (1000/60) * 0.5;
 
-var last_loop;
+var last_loop, this_loop;
 
 function start_animation(fps)
 {
-    last_loop = performance.now();
+    this_loop = last_loop = performance.now();
     loop();
 }
 
@@ -84,6 +87,13 @@ function loop() {
         else
         {
             context.clearRect(0, 0, 800, 600);
+
+            if (fps_enable)
+            {
+                show_fps();
+            }
+
+            last_loop = performance.now();
 
             if (ball.invulnerability_duration > 0 && !invulnerability_trigger)
             {
@@ -107,6 +117,7 @@ function loop() {
 
             if (game_ended)
             {
+                console.log("game end");
                 return;
             }
 
@@ -115,9 +126,9 @@ function loop() {
 
             for (let i = 0; i < debris_list.length; i++)
             {
-                current_debris = debris_list[i];
+                let current_debris = debris_list[i];
                 current_debris.draw();
-                if (current_debris.y > config.CANVAS_HEIGHT)
+                if (current_debris.y[0] > config.CANVAS_HEIGHT)
                 {
                     debris_list.splice(i, 1);
                 }
@@ -162,7 +173,7 @@ function loop() {
 
             for (let i = 0; i < bricks.length; i++)
             {
-                current_brick = bricks[i];
+                let current_brick = bricks[i];
                 current_brick.draw();
                 ball.brickCollision(current_brick);
                 if (current_brick.type == "for_delete")
@@ -174,7 +185,7 @@ function loop() {
 
             for (let i = 0; i < bonuses.length; i++)
             {
-                current_bonus = bonuses[i];
+                let current_bonus = bonuses[i];
                 current_bonus.move();
                 current_bonus.draw();
                 current_bonus.brickCollision(bricks);
@@ -189,7 +200,7 @@ function loop() {
 
             for (let i = 0; i < doomguys.length; i++)
             {
-                current_doomguy = doomguys[i];
+                let current_doomguy = doomguys[i];
                 current_doomguy.move();
                 current_doomguy.draw();
                 current_doomguy.brickCollision(bricks);
@@ -204,7 +215,7 @@ function loop() {
             draw_hud();
             for (let i = 0; i < score_list.length; i++)
             {
-                current_score = score_list[i];
+                let current_score = score_list[i];
                 current_score.draw();
                 current_score.move();
                 if (current_score.status == "for_delete")
@@ -215,7 +226,7 @@ function loop() {
 
             for (let i = 0; i < message_list.length; i++)
             {
-                current_message = message_list[i];
+                let current_message = message_list[i];
                 current_message.draw();
                 if (current_message.status == "for_delete")
                 {
@@ -226,12 +237,6 @@ function loop() {
 
             context.drawImage(SPIKES, 26, config.CANVAS_HEIGHT - 24);
 
-            if (fps_enable)
-            {
-                show_fps();
-            }
-
-            last_loop = performance.now();
             requestAnimationFrame(loop);
         }
     }
@@ -253,12 +258,7 @@ function arkanoid_start(lvl)
         contentType: "application/json",
         data: {"lvl": lvl},
         success: function (data) {
-            let new_bricks = create_bricks(data["bricks"]);
-            bricks.push.apply(bricks, new_bricks);
-//            let new_bonuses = create_bonuses(data["bonuses"]);
-//            bonuses.push.apply(bonuses, new_bonuses);
-//            let new_doomguys = create_doomguys(data["doomguys"]);
-//            doomguys.push.apply(doomguys, new_doomguys);
+            bricks = create_bricks(data["bricks"]);
             bonuses = create_bonuses(data["bonuses"]);
             doomguys = create_doomguys(data["doomguys"]);
             message_list.push(new Message(context, "Level " + lvl));
@@ -273,7 +273,8 @@ function create_bricks(bricks_list)
     let bricks = [];
     for (let i = 0; i < bricks_list.length; i++)
     {
-            brick = bricks_list[i];
+            let brick = bricks_list[i];
+            let current_brick;
             if (brick["type"] == "brown")
             {
                 current_brick = new BrownBrick(context, brick["type"], brick["x"], brick["y"]);
@@ -294,9 +295,10 @@ function create_bricks(bricks_list)
 function create_bonuses(bonuses_list)
 {
     let bonuses = [];
+    let current_bonus;
     for (let i = 0; i < bonuses_list.length; i++)
     {
-        bonus = bonuses_list[i];
+        let bonus = bonuses_list[i];
         if (bonus["type"] == "life")
         {
             current_bonus = new LifeBonus(context, bonus["type"], bonus["x"], bonus["y"])
@@ -333,9 +335,10 @@ function create_bonuses(bonuses_list)
 function create_doomguys(doomguys_list)
 {
     let doomguys = [];
+    let current_doomguy;
     for (let i = 0; i < doomguys_list.length; i++)
     {
-        doomguy = doomguys_list[i];
+        let doomguy = doomguys_list[i];
         current_doomguy = new Doomguy(context, doomguy["x"], doomguy["y"]);
         doomguys.push(current_doomguy);
     }
@@ -346,6 +349,9 @@ function level_complete(current_lvl)
 {
     bonuses = [];
     doomguys = [];
+    debris_list = [];
+    score_list = [];
+    bonuses = [];
     paddle.reset();
     ball.reset();
     arkanoid_start(current_lvl);
@@ -495,7 +501,7 @@ function fps_switch()
 
 function show_fps()
 {
-    var currentFPS = Math.round(1000 / (this_loop - last_loop));
+    let currentFPS = Math.round(1000 / (this_loop - last_loop));
     context.textAlign = "center";
     context.fillStyle = "#6F6F6F";
     context.font = "24px roboto";

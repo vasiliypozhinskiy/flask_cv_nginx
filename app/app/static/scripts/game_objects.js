@@ -1,3 +1,5 @@
+"use strict";
+
 var config = get_config();
 
 function get_config()
@@ -37,14 +39,10 @@ class Paddle
         {
             this.context.globalAlpha = 0.1;
         }
-        if (this.mega_activated)
+        if (this.mega_activated && this.mega_duration <= 0)
         {
-            this.mega_duration -= 1;
-            if (this.mega_duration <= 0)
-            {
-                this.change_size(-100, -20)
-                this.mega_activated = false;
-            }
+            this.change_size(-100, -20)
+            this.mega_activated = false;
         }
         this.context.beginPath();
         this.context.rect(this.x, this.y, this.width, this.height);
@@ -212,12 +210,12 @@ class Ball
  {
     if (this.invisibility_duration > 0)
     {
-        this.invisibility_duration -= 1;
-        this.context.globalAlpha = 0.1;
+        this.context.globalAlpha = 0.2;
     }
     if (this.mega_activated && this.mega_duration == 0)
     {
         this.mega_activated = false;
+        this.damage = config.BALL_DAMAGE;
         this.change_size()
     }
     if (this.fall || this.animation)
@@ -600,6 +598,10 @@ class Ball
         if (this.invulnerability_duration > 0)
         {
             this.invulnerability_duration -= 1;
+        }
+        if (this.invisibility_duration > 0)
+        {
+            this.invisibility_duration -= 1;
         }
  }
 
@@ -1135,6 +1137,7 @@ class MegaBonus extends Bonus
             if (!ball.mega_activated)
             {
                 ball.mega_activated = true;
+                ball.damage = 20;
                 ball.change_size();
             }
             this.type = "for_delete";
@@ -1222,6 +1225,7 @@ class InvulnerabilityBonus extends Bonus
         this.animation4 = new Image();
         this.animation4.src = "/static/images/invulnerability4.png";
 
+        this.duration = 1000;
         this.duration = 1000;
         this.score = 100;
     }
@@ -1654,7 +1658,7 @@ class Doomguy
             this.speed[1] += config.FALLING_SPEED;
         }
 
-        if(this.x > 0 && this.x + this.width < config.CANVAS_WIDTH)
+        if (this.x > 0 && this.x + this.width < config.CANVAS_WIDTH)
             {
                 this.x += this.speed[0];
             }
@@ -1714,15 +1718,16 @@ class Doomguy
        {
             this.frame_count = 0;
             this.dead = true;
+            this.shooting = false;
             play_audio(this.death_sound_1);
             play_audio(ball.attack_sound);
             if (this.x < ball.x)
             {
-                this.speed[0] = -3;
+                this.speed[0] = -3 - Math.random();
             }
             else
             {
-                this.speed[0] = 3;
+                this.speed[0] = 3 + Math.random();
             }
             ball.animation = true;
             game_score += this.score * 2;
@@ -1750,22 +1755,22 @@ class Doomguy
                     {
                         if (ball.mega_activated)
                         {
-                            ball.side_acceleration += 2;
+                            ball.side_acceleration += 2 + Math.random();
                         }
                         else
                         {
-                            ball.side_acceleration += 10;
+                            ball.side_acceleration += 7 +  Math.random() * 5;
                         }
                     }
                     else
                     {
                         if (ball.mega_activated)
                         {
-                            ball.side_acceleration -= 2;
+                            ball.side_acceleration -= 2 + Math.random();
                         }
                         else
                         {
-                            ball.side_acceleration -= 10;
+                            ball.side_acceleration -= 7 + Math.random() * 5;
                         }
                     }
                     if (ball.hp > 0 && ball.invulnerability_duration == 0)
@@ -2029,7 +2034,7 @@ function play_audio(path)
 {
     if (!muted)
     {
-        audio = new Audio(path);
+        let audio = new Audio(path);
         audio.play();
     }
 }
