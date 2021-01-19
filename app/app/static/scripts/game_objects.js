@@ -129,11 +129,15 @@ class Paddle
         }
         if (this.invulnerability_duration > 0)
         {
-            this.mega_duration -= 1;
+            this.invulnerability_duration -= 1;
         }
         if (this.speed_duration > 0)
         {
             this.speed_duration -= 1;
+        }
+        if (this.mega_duration > 0)
+        {
+            this.mega_duration -= 1;
         }
     }
 }
