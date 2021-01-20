@@ -12,5 +12,5 @@ class Config:
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_USE_SSL = True
     MAIL_PASSWORD = os.getenv('FLASKCV_MAIL_PASSWORD')
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_DATABASE_URI = 'postgresql://flask_user:flask_password@127.0.0.1:8000/flask_cv'
     SQLALCHEMY_TRACK_MODIFICATIONS = False

@@ -48,8 +48,7 @@ def generate_lvl():
 def add_score():
     score = int(request.form["score"])
     user = unquote(request.form["user"])
-    date = datetime.fromtimestamp(int(request.form["date"]) / 1000.0)
-    record = ArkanoidScore(username=user, score=score, date=date)
+    record = ArkanoidScore(username=user, score=score)
     db.session.add(record)
     db.session.commit()
     return "", 204

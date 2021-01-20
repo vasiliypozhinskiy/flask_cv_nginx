@@ -16,6 +16,5 @@ class ArkanoidScore(db.Model):
         return dict_
 
 
-db.drop_all()
 db.create_all()
 db.session.commit()

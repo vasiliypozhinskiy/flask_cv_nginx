@@ -212,7 +212,7 @@ class Ball
     {
         this.context.globalAlpha = 0.2;
     }
-    if (this.mega_activated && this.mega_duration == 0)
+    if (this.mega_activated && this.mega_duration <= 0)
     {
         this.mega_activated = false;
         this.damage = config.BALL_DAMAGE;

@@ -418,7 +418,7 @@ function add_score()
         url: "/projects/add_score",
         async: false,
         type: "POST",
-        data: {"score": last_score, "user": username, "date": Date.now()}
+        data: {"score": last_score, "user": username}
     }
     );
     show_score(last_score, username);
