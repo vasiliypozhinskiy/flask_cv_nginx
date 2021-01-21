@@ -2165,7 +2165,7 @@ class Cyberdemon
             {
                 this.dead = true;
                 this.frame_count = 0;
-                lives += this.lvl / 5;
+                lives += Math.round(this.lvl / 5);
                 play_audio(this.death_sound);
                 game_score += this.score;
                 score_list.push(new Score_obj(this.context, this.score * 2, this.x + this.width / 2, this.y + this.height / 2));
