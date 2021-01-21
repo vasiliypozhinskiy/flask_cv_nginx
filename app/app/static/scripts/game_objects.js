@@ -461,7 +461,7 @@ class Ball
                 this.speed[0] = config.BALL_MAX_SPEED * Math.sin(angle);
                 this.speed[1] = - config.BALL_MAX_SPEED + Math.abs(this.speed[0]);
                 this.y = paddle.y - this.radius;
-                this.side_acceleration = paddle.speed[0] / 2;
+                this.side_acceleration = paddle.speed[0];
                 return;
             }
 
@@ -518,12 +518,30 @@ class Ball
 
             if ((this.x + this.radius - this.speed[0] <= brick.x) || (this.x - this.radius - this.speed[0] >= brick.x + brick.width))
             {
-                this.speed[0] = -this.speed[0];
+                if (this.x < brick.x + brick.width / 2)
+                {
+                    this.speed[0] = -Math.abs(this.speed[0]);
+                    this.x += this.speed[0];
+                }
+                else
+                {
+                    this.speed[0] = Math.abs(this.speed[0]);
+                    this.x += this.speed[0];
+                }
+
             }
             if ((this.y + this.radius - this.speed[1] <= brick.y) || (this.y - this.radius - this.speed[1] >= brick.y + brick.height))
             {
-
-                this.speed[1] = -this.speed[1];
+                if (this.y < brick.y + brick.height / 2)
+                {
+                    this.speed[1] = -Math.abs(this.speed[1]);
+                    this.y += this.speed[1];
+                }
+                else
+                {
+                    this.speed[1] = Math.abs(this.speed[1]);
+                    this.y += this.speed[1];
+                }
             }
         }
 
@@ -885,6 +903,40 @@ class GreyBrick extends Brick
                 bonuses.push(new Barrel(context, "barrel", this.x, this.y + this.height / 2));
             }
         }
+    }
+}
+
+class InvulnerableBrick extends Brick
+{
+    constructor(context, type, x, y)
+    {
+        super(context, type, x, y)
+        this.width = 128;
+        this.height = 38;
+        this.image = new Image(this.width, this.height);
+        this.image.src = "/static/images/invulnerable.png";
+    }
+    collision()
+    {
+        if (ball.x < this.x + this.width / 2)
+        {
+            ball.side_acceleration -= 5;
+        }
+        else
+        {
+            ball.side_acceleration += 5;
+        }
+    }
+
+    draw()
+    {
+        this.context.drawImage(this.image, this.x, this.y);
+    }
+
+    move()
+    {
+        this.x = cyberdemon.x - cyberdemon.width / 2 + 20;
+        this.y = cyberdemon.y + cyberdemon.height - 20;
     }
 }
 
@@ -1783,6 +1835,511 @@ class Doomguy
                     }
                 }
             }
+        }
+    }
+}
+
+class Cyberdemon
+{
+    constructor(lvl)
+    {
+        this.context = context;
+        this.x = config.CANVAS_WIDTH / 2;
+        this.height = 110;
+        this.width = 88;
+        this.radius = 40;
+        this.y = config.CANVAS_HEIGHT / 2;
+        this.frame_count = Math.floor(Math.random() * (120));
+        this._phi = 0;
+        this.lvl = lvl;
+
+        this.dead = false;
+        this.shooting = false;
+
+        this.shooting_delay = 200 + Math.floor(Math.random() * (200 + 1));
+        this.rockets_in_row = Math.floor(this.lvl / 5) + 1;
+        this.rockets_fired = 0;
+
+        this.score = 200 * this.lvl;
+        this.hp = 10 * this.lvl;
+        this.full_hp = this.hp;
+
+        this.timer = 0;
+
+        this.animation1 = new Image();
+        this.animation1.src = "/static/images/cyberdemon1.png";
+        this.animation2 = new Image();
+        this.animation2.src = "/static/images/cyberdemon2.png";
+        this.animation3 = new Image();
+        this.animation3.src = "/static/images/cyberdemon3.png";
+        this.animation4 = new Image();
+        this.animation4.src = "/static/images/cyberdemon4.png";
+
+        this.fire_left_1 = new Image();
+        this.fire_left_1.src = "/static/images/cyberdemon_left1.png";
+        this.fire_left_2 = new Image();
+        this.fire_left_2.src = "/static/images/cyberdemon_left2.png";
+        this.fire_left_3 = new Image();
+        this.fire_left_3.src = "/static/images/cyberdemon_left3.png";
+        this.fire_left_4 = new Image();
+        this.fire_left_4.src = "/static/images/cyberdemon_left4.png";
+        this.fire_right_1 = new Image();
+        this.fire_right_1.src = "/static/images/cyberdemon_right1.png";
+        this.fire_right_2 = new Image();
+        this.fire_right_2.src = "/static/images/cyberdemon_right2.png";
+        this.fire_right_3 = new Image();
+        this.fire_right_3.src = "/static/images/cyberdemon_right3.png";
+        this.fire_right_4 = new Image();
+        this.fire_right_4.src = "/static/images/cyberdemon_right4.png";
+
+        this.death1 = new Image();
+        this.death1.src = "/static/images/cyberdemon_death1.png";
+        this.death2 = new Image();
+        this.death2.src = "/static/images/cyberdemon_death2.png";
+        this.death3 = new Image();
+        this.death3.src = "/static/images/cyberdemon_death3.png";
+        this.death4 = new Image();
+        this.death4.src = "/static/images/cyberdemon_death4.png";
+        this.death5 = new Image();
+        this.death5.src = "/static/images/cyberdemon_death5.png";
+        this.death6 = new Image();
+        this.death6.src = "/static/images/cyberdemon_death6.png";
+        this.death7 = new Image();
+        this.death7.src = "/static/images/cyberdemon_death7.png";
+        this.death8 = new Image();
+        this.death8.src = "/static/images/cyberdemon_death8.png";
+        this.death9 = new Image();
+        this.death9.src = "/static/images/cyberdemon_death9.png";
+        this.death10 = new Image();
+        this.death10.src = "/static/images/cyberdemon_death10.png";
+
+        this.fire_sound = "/static/sound/cyber_fire.wav";
+        this.death_sound = "/static/sound/cyber_death.wav";
+        this.injured_sound = "/static/sound/cyber_injured.wav";
+    }
+
+    draw()
+    {
+        if (!this.shooting && !this.dead && this.frame_count <= 120)
+        {
+            this.frame_count++;
+        }
+        if(!this.shooting && !this.dead && this.frame_count > 120)
+        {
+            this.frame_count = 0;
+        }
+
+        if (this.dead && this.frame_count < 200)
+        {
+            this.frame_count++;
+        }
+
+        if (this.dead && this.frame_count == 200)
+        {
+            bricks.length = 0;
+        }
+
+        if (this.shooting && this.frame_count <= 120)
+        {
+            this.frame_count++;
+        }
+        if (this.shooting && this.frame_count > 120)
+        {
+            this.shooting = false;
+            this.frame_count = 0;
+        }
+
+        if (!this.dead && this.shooting && this.frame_count <= 10)
+        {
+            if (this.x < ball.x)
+            {
+                this.context.drawImage(this.fire_right_1, this.x, this.y);
+                return;
+            }
+            if (this.x > ball.x)
+            {
+                this.context.drawImage(this.fire_left_1, this.x, this.y);
+                return;
+            }
+        }
+        if (!this.dead && this.shooting && this.frame_count <= 40)
+        {
+            if (this.x < ball.x)
+            {
+                this.context.drawImage(this.fire_right_2, this.x, this.y);
+                return;
+            }
+            if (this.x > ball.x)
+            {
+                this.context.drawImage(this.fire_left_2, this.x, this.y);
+                return;
+            }
+        }
+        if (!this.dead && this.shooting && this.frame_count <= 80)
+        {
+            if (this.x < ball.x)
+            {
+                this.context.drawImage(this.fire_right_3, this.x, this.y);
+                return;
+            }
+            if (this.x > ball.x)
+            {
+                this.context.drawImage(this.fire_left_3, this.x, this.y);
+                return;
+            }
+        }
+
+        if (!this.dead && this.shooting && this.frame_count <= 120)
+        {
+            if (this.x < ball.x)
+            {
+                this.context.drawImage(this.fire_right_4, this.x, this.y);
+                return;
+            }
+            if (this.x > ball.x)
+            {
+                this.context.drawImage(this.fire_left_4, this.x, this.y);
+                return;
+            }
+        }
+
+        if (!this.dead && this.frame_count <= 30)
+        {
+            this.context.drawImage(this.animation1, this.x, this.y);
+            return;
+        }
+        if (!this.dead && this.frame_count <= 60)
+        {
+            this.context.drawImage(this.animation2, this.x, this.y);
+            return;
+        }
+        if (!this.dead && this.frame_count <= 90)
+        {
+            this.context.drawImage(this.animation3, this.x, this.y);
+            return;
+        }
+        if (!this.dead && this.frame_count <= 120)
+        {
+            this.context.drawImage(this.animation2, this.x, this.y);
+            return;
+        }
+
+        if (this.dead && this.frame_count <= 10)
+        {
+            let height_diff = this.height - this.death1.height;
+            this.context.drawImage(this.death1, this.x, this.y + height_diff);
+            return;
+        }
+        if (this.dead && this.frame_count <= 20)
+        {
+            let height_diff = this.height - this.death2.height;
+            this.context.drawImage(this.death2, this.x, this.y + height_diff);
+            return;
+        }
+        if (this.dead && this.frame_count <= 30)
+        {
+            let height_diff = this.height - this.death3.height;
+            this.context.drawImage(this.death3, this.x, this.y + height_diff);
+            return;
+        }
+        if (this.dead && this.frame_count <= 40)
+        {
+            let height_diff = this.height - this.death4.height;
+            this.context.drawImage(this.death4, this.x, this.y + height_diff);
+            return;
+        }
+        if (this.dead && this.frame_count <= 50)
+        {
+            let height_diff = this.height - this.death5.height;
+            this.context.drawImage(this.death5, this.x, this.y + height_diff);
+            return;
+        }
+        if (this.dead && this.frame_count <= 60)
+        {
+            let height_diff = this.height - this.death6.height;
+            this.context.drawImage(this.death6, this.x, this.y + height_diff);
+            return;
+        }
+        if (this.dead && this.frame_count <= 70)
+        {
+            let height_diff = this.height - this.death7.height;
+            this.context.drawImage(this.death7, this.x, this.y + height_diff);
+            return;
+        }
+        if (this.dead && this.frame_count <= 80)
+        {
+            let height_diff = this.height - this.death8.height;
+            this.context.drawImage(this.death8, this.x, this.y + height_diff);
+            return;
+        }
+        if (this.dead && this.frame_count <= 90)
+        {
+            let height_diff = this.height - this.death9.height;
+            this.context.drawImage(this.death9, this.x, this.y + height_diff);
+            return;
+        }
+        if (this.dead && this.frame_count <= 200)
+        {
+            let height_diff = this.height - this.death10.height;
+            this.context.drawImage(this.death10, this.x, this.y + height_diff);
+            return;
+        }
+    }
+
+    hp_indicator()
+    {
+        this.context.lineWidth = 1;
+        this.context.strokeStyle = "black";
+        this.context.fillStyle = "green";
+        this.context.rect(39, 38, config.CANVAS_WIDTH - 78, 10);
+        this.context.fill();
+        this.context.stroke();
+        this.context.fillStyle = "red";
+        this.context.fillRect(config.CANVAS_WIDTH - 39, 39, -(config.CANVAS_WIDTH - 78) / this.full_hp * (this.full_hp - this.hp),8)
+    }
+
+    move()
+    {
+        var _step = Math.PI / 600;
+        var _root2 = Math.sqrt(2);
+        var _a = 200;
+
+        var cos = Math.cos(this._phi);
+        var sin = Math.sin(this._phi);
+        var sin_sq = Math.pow(Math.sin(this._phi), 2) + 1;
+
+        var x = _a * _root2 * cos / sin_sq;
+        var y = _a * _root2 * cos * sin / sin_sq;
+        this._phi += _step;
+        if (this._phi >= Math.PI * 2 + _step)
+        {
+            this._phi = 0;
+        }
+        this.x = x + config.CANVAS_WIDTH / 2 - this.width / 2;
+        this.y = y + config.CANVAS_HEIGHT / 2 - 150;
+    }
+
+    checkForShooting()
+    {
+        if (!this.dead)
+        {
+            if (this.shooting_delay == 40 && this.rockets_fired < this.rockets_in_row)
+            {
+                this.shooting = true;
+                this.frame_count = 0;
+            }
+            if (this.shooting_delay == 0 && this.rockets_fired < this.rockets_in_row)
+            {
+                this.rockets_fired ++;
+                play_audio(this.fire_sound);
+                if (this.x + this.width / 2 < ball.x)
+                {
+                    rockets.push(new Rocket(this.context, this.x + this.width + 15, this.y + this.height / 2 - 10));
+                }
+                else
+                {
+                    rockets.push(new Rocket(this.context, this.x + 15, this.y + this.height / 2));
+                }
+                this.shooting_delay = 10;
+            }
+            else
+            {
+                this.shooting_delay --;
+            }
+
+            if (this.rockets_fired == this.rockets_in_row)
+            {
+                this.shooting_delay = 200 + Math.floor(Math.random() * (1000 / this.lvl + 1));
+                this.rockets_fired = 0;
+            }
+        }
+    }
+
+    ballCollision()
+    {
+       if ((!this.dead) && (!ball.fall) && (ball.y + ball.radius > this.y + 10) && (ball.y - ball.radius < this.y + this.height - 10)
+       && (ball.x + ball.radius > this.x + 10) && (ball.x - ball.radius < this.x + this.width - 10))
+        {
+            this.hp -= ball.damage;
+            if (this.hp <= 0)
+            {
+                this.dead = true;
+                this.frame_count = 0;
+                lives += this.lvl / 5;
+                play_audio(this.death_sound);
+                game_score += this.score;
+                score_list.push(new Score_obj(this.context, this.score * 2, this.x + this.width / 2, this.y + this.height / 2));
+            }
+            else
+            {
+                this.shooting_delay += 20;
+                this.rockets_fired = 0;
+                play_audio(this.injured_sound);
+                play_audio(ball.attack_sound);
+                if (ball.x < this.x + this.width / 2)
+                {
+                    ball.speed[0] = -Math.abs(ball.speed[0]);
+                    ball.side_acceleration -= 5;
+                }
+                else
+                {
+                    ball.speed[0] = Math.abs(ball.speed[0]);
+                    ball.side_acceleration += 5;
+                }
+                if (ball.y > this.y + this.height / 2)
+                {
+                    ball.speed[1] = -Math.abs(ball.speed[1]);
+                }
+                else
+                {
+                    ball.speed[1] = -Math.abs(ball.speed[1]);
+                }
+            }
+            this.shooting = false;
+            ball.animation = true;
+        }
+    }
+}
+
+class Rocket
+{
+    constructor(context, x, y)
+    {
+        this.context = context;
+        this.x = x;
+        this.y = y;
+        this.width = 26;
+        this.height = 14;
+
+        let vector = [ball.x - this.x, ball.y - this.y];
+        let length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
+        this.speed = [vector[0] / length, vector[1] / length];
+        this.acceleration = [0, 0];
+        this.radius = 7;
+
+        this.frame_count = 0;
+        this.explode = false;
+
+        this.image = new Image();
+        this.image.src = "/static/images/rocket.png";
+
+        this.animation1 = new Image();
+        this.animation1.src = "/static/images/explosion1.png";
+        this.animation2 = new Image();
+        this.animation2.src = "/static/images/explosion2.png";
+        this.animation3 = new Image();
+        this.animation3.src = "/static/images/explosion3.png";
+
+        this.explosion_sound = "/static/sound/rocket_explosion.wav"
+    }
+
+    draw()
+    {
+        if (this.explode && this.frame_count < 30)
+        {
+            this.frame_count++;
+        }
+
+        if (this.explode && this.frame_count < 10)
+        {
+            let width_diff = (this.width - this.animation1.width) / 2;
+            let height_diff = (this.height - this.animation1.height) / 2;
+            this.context.drawImage(this.animation1, this.x - this.radius + width_diff, this.y - this.radius + height_diff);
+            return;
+        }
+        if (this.explode && this.frame_count < 20)
+        {
+            let width_diff = (this.width - this.animation2.width) / 2;
+            let height_diff = (this.height - this.animation2.height) / 2;
+            this.context.drawImage(this.animation2, this.x - this.radius + width_diff, this.y - this.radius + height_diff);
+            return;
+        }
+        if (this.explode && this.frame_count <= 30)
+        {
+            let width_diff = (this.width - this.animation3.width) / 2;
+            let height_diff = (this.height - this.animation3.height) / 2;
+            this.context.drawImage(this.animation3, this.x - this.radius + width_diff, this.y - this.radius + height_diff);
+            return;
+        }
+
+        let vector = [this.speed[0] - this.x, this.speed[1] - this.y];
+        let cos = this.speed[0] / Math.sqrt(this.speed[0] * this.speed[0] + this.speed[1] * this.speed[1]);
+
+        let angle = Math.acos(cos);
+        this.context.save();
+        this.context.translate(this.x, this.y);
+        if (this.speed[1] > 0)
+        {
+            this.context.rotate(angle);
+        }
+        else
+        {
+            this.context.rotate(-angle);
+        }
+        this.context.drawImage(this.image, 0, 0);
+        this.context.restore();
+    }
+
+    collision()
+    {
+        if (!this.explode && ((this.x - this.radius < 0) || (this.x + this.radius > config.CANVAS_WIDTH)
+        || (this.y - this.radius < 0) || (this.y + this.radius > config.CANVAS_HEIGHT)))
+        {
+            this.explode = true;
+            play_audio(this.explosion_sound);
+            this.speed = [0, 0];
+        }
+
+        if (!this.explode)
+        {
+            let distX = this.x - ball.x;
+            let distY = this.y - ball.y;
+            let distance = Math.sqrt(distX * distX + distY * distY);
+            if (distance <= this.radius + ball.radius)
+            {
+                this.explode = true;
+                if (ball.isBallOnPaddle)
+                {
+                    ball.isBallOnPaddle = false;
+                    ball.speed = this.speed;
+                }
+                play_audio(this.explosion_sound);
+                ball.speed[0] = - ball.speed[0];
+                ball.speed[1] = - ball.speed[1];
+
+                if (ball.x < this.x)
+                {
+                    ball.side_acceleration -= 10;
+                }
+                else
+                {
+                    ball.side_acceleration += 10;
+                }
+                if (ball.hp > 0 && ball.invulnerability_duration == 0)
+                {
+                    ball.hp -= 1;
+                }
+                if (ball.hp <= 0)
+                {
+                    ball.falling = true;
+                }
+            }
+        }
+    }
+
+    move()
+    {
+        if (!this.explode)
+        {
+            this.x += this.speed[0];
+            this.y += this.speed[1];
+
+            this.speed[0] += this.acceleration[0];
+            this.speed[1] += this.acceleration[1];
+
+            let acceleration_vector = [ball.x - this.x, ball.y - this.y];
+
+            this.acceleration = [acceleration_vector[0] * 0.0005, acceleration_vector[1] * 0.0005];
         }
     }
 }

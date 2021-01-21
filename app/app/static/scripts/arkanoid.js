@@ -6,7 +6,7 @@ var requestId = 0;
 var stopped = false;
 var muted = false;
 var fps_enable = false;
-var game_ended = false;
+var lvl_ended = false;
 
 var left_arrow_pressed = false;
 var right_arrow_pressed = false;
@@ -52,11 +52,16 @@ const SPIKES = new Image();
 SPIKES.src = "/static/images/spikes.png";
 
 var bricks = [];
+var debris_list = [];
 var bonuses = [];
 var doomguys = [];
+var cyberdemon = null;
+var rockets = [];
+
 var score_list = [];
 var message_list = [];
-var debris_list = [];
+var bonus_delay = config.BONUS_DELAY;
+
 var current_lvl = 1;
 
 const start_sound = "/static/sound/newlvl.wav";
@@ -108,16 +113,15 @@ function loop() {
                 $("canvas").css({"filter": "none"});
             }
 
-            if ((lives == 0) && (ball.frame_count == 100))
+            if ((lives <= 0) && (ball.frame_count == 100))
             {
                 $("#background").css({"filter": "none"});
                 $("canvas").css({"filter": "none"});
                 game_over();
             }
 
-            if (game_ended)
+            if (lvl_ended)
             {
-                console.log("game end");
                 return;
             }
 
@@ -209,6 +213,33 @@ function loop() {
                 current_doomguy.friction();
             }
 
+            if (cyberdemon != null)
+            {
+                cyberdemon.draw();
+                cyberdemon.move();
+                cyberdemon.ballCollision();
+                cyberdemon.checkForShooting();
+                cyberdemon.hp_indicator();
+                random_bonus_generation();
+                if (bricks[0] instanceof InvulnerableBrick)
+                {
+                    bricks[0].move();
+                }
+            }
+
+            for (let i = 0; i < rockets.length ; i++)
+            {
+                let current_rocket = rockets[i];
+                current_rocket.move();
+                current_rocket.draw();
+                current_rocket.collision();
+
+                if (current_rocket.explode && current_rocket.frame_count == 30)
+                {
+                    rockets.splice(i, 1);
+                }
+            }
+
             paddle.draw();
             ball.random_animation();
             ball.draw();
@@ -244,28 +275,82 @@ function loop() {
 
 function arkanoid_start(lvl)
 {
-    game_ended = false;
+    lvl_ended = false;
     $("#arkanoid").focus();
     disable_keys();
     $('#top-scores').css({"opacity": "0"});
     $('#add-score-container').css({"opacity": "0"});
     $('#start').attr("disabled", true);
     $('#show-score').attr("disabled", true);
-    $.ajax({
-        url: "/projects/generate_arkanoid_lvl",
-        async: false,
-        type: "GET",
-        contentType: "application/json",
-        data: {"lvl": lvl},
-        success: function (data) {
-            bricks = create_bricks(data["bricks"]);
-            bonuses = create_bonuses(data["bonuses"]);
-            doomguys = create_doomguys(data["doomguys"]);
-            message_list.push(new Message(context, "Level " + lvl));
-            play_audio(start_sound);
-            start_animation(config.FPS);
+    if (lvl % 5 == 0)
+    {
+        cyberdemon = new Cyberdemon(lvl);
+        bricks.push(new InvulnerableBrick(context, "invulnerable", config.CANVAS_HEIGHT / 2, config.CANVAS_WIDTH / 2));
+        play_audio(start_sound);
+        start_animation(config.fps);
+    }
+    else
+    {
+        $.ajax({
+            url: "/projects/generate_arkanoid_lvl",
+            async: false,
+            type: "GET",
+            contentType: "application/json",
+            data: {"lvl": lvl},
+            success: function (data) {
+                bricks = create_bricks(data["bricks"]);
+                bonuses = create_bonuses(data["bonuses"]);
+                doomguys = create_doomguys(data["doomguys"]);
+                message_list.push(new Message(context, "Level " + lvl));
+                play_audio(start_sound);
+                start_animation(config.FPS);
+            }
+        });
+    }
+}
+
+function random_bonus_generation()
+{
+    if (!ball.isBallOnPaddle)
+    {
+        bonus_delay -= Math.random();
+    }
+    if (bonus_delay < 0)
+    {
+        bonus_delay = config.BONUS_DELAY;
+        let seed = Math.random();
+        let x = 40 + Math.floor(Math.random() * (config.CANVAS_WIDTH - 40 + 1));
+        play_audio(start_sound);
+
+        if (seed > 0.95)
+        {
+            bonuses.push(new LifeBonus(context, "life", x, 0));
         }
-    });
+        else if (seed > 0.8)
+        {
+            bonuses.push(new InvisibilityBonus(context, "invisibility", x, 0));
+        }
+        else if (seed > 0.7)
+        {
+            bonuses.push(new MegaBonus(context, "mega", x, 0));
+        }
+        else if (seed > 0.6)
+        {
+            bonuses.push(new SpeedBonus(context, "hp", x, 0));
+        }
+        else if (seed > 0.4)
+        {
+            bonuses.push(new InvulnerabilityBonus(context, "invulnerability", 0));
+        }
+        else if (seed > 0.2)
+        {
+            bonuses.push(new HpBonus(context, "speed", x, 0));
+        }
+        else
+        {
+            bonuses.push(new Barrel(context, "barrel", x, 0));
+        }
+    }
 }
 
 function create_bricks(bricks_list)
@@ -349,9 +434,11 @@ function level_complete(current_lvl)
 {
     bonuses = [];
     doomguys = [];
+    cyberdemon = null;
     debris_list = [];
     score_list = [];
     bonuses = [];
+    rockets = [];
     paddle.reset();
     ball.reset();
     arkanoid_start(current_lvl);
@@ -359,7 +446,7 @@ function level_complete(current_lvl)
 
 function game_over()
 {
-    game_ended = true;
+    lvl_ended = true;
     enable_keys();
     $('#start').attr("disabled", false);
     $('#show-score').attr("disabled", false);
@@ -372,6 +459,8 @@ function game_over()
     score_list = [];
     message_list = [];
     debris_list = [];
+    cyberdemon = null;
+    rockets = [];
     ball.reset();
     paddle.reset();
     current_lvl = 1;
