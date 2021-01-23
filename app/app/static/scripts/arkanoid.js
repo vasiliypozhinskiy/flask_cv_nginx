@@ -68,6 +68,7 @@ const start_sound = "/static/sound/newlvl.wav";
 var lives = config.LIVES;
 var game_score = 0;
 var last_score = 0;
+var lvl_end_timer = 0;
 var invulnerability_trigger = false;
 
 const FRAME_MIN_TIME = (1000/60) * (60 / config.FPS) - (1000/60) * 0.5;
@@ -170,6 +171,11 @@ function loop() {
             ball.paddleCollision(paddle);
             if (bricks.length == 0)
             {
+                lvl_end_timer ++;
+            }
+
+            if (lvl_end_timer == 240)
+            {
                 current_lvl += 1;
                 level_complete(current_lvl);
                 return;
@@ -178,6 +184,7 @@ function loop() {
             for (let i = 0; i < bricks.length; i++)
             {
                 let current_brick = bricks[i];
+                current_brick.move();
                 current_brick.draw();
                 ball.brickCollision(current_brick);
                 if (current_brick.type == "for_delete")
@@ -215,16 +222,16 @@ function loop() {
 
             if (cyberdemon != null)
             {
-                cyberdemon.draw();
+                if (cyberdemon.dead && cyberdemon.frame_count == 200)
+                {
+                    lvl_end_timer ++;
+                }
                 cyberdemon.move();
+                cyberdemon.draw();
                 cyberdemon.ballCollision();
                 cyberdemon.checkForShooting();
                 cyberdemon.hp_indicator();
                 random_bonus_generation();
-                if (bricks[0] instanceof InvulnerableBrick)
-                {
-                    bricks[0].move();
-                }
             }
 
             for (let i = 0; i < rockets.length ; i++)
@@ -286,6 +293,7 @@ function arkanoid_start(lvl)
     {
         cyberdemon = new Cyberdemon(lvl);
         bricks.push(new InvulnerableBrick(context, "invulnerable", config.CANVAS_HEIGHT / 2, config.CANVAS_WIDTH / 2));
+        message_list.push(new Message(context, "Level " + lvl));
         play_audio(start_sound);
         start_animation(config.fps);
     }
@@ -311,7 +319,7 @@ function arkanoid_start(lvl)
 
 function random_bonus_generation()
 {
-    if (!ball.isBallOnPaddle)
+    if (!ball.onPaddle)
     {
         bonus_delay -= Math.random();
     }
@@ -319,7 +327,7 @@ function random_bonus_generation()
     {
         bonus_delay = config.BONUS_DELAY;
         let seed = Math.random();
-        let x = 40 + Math.floor(Math.random() * (config.CANVAS_WIDTH - 40 + 1));
+        let x = 40 + Math.floor(Math.random() * (config.CANVAS_WIDTH - 80));
         play_audio(start_sound);
 
         if (seed > 0.95)
@@ -340,7 +348,7 @@ function random_bonus_generation()
         }
         else if (seed > 0.4)
         {
-            bonuses.push(new InvulnerabilityBonus(context, "invulnerability", 0));
+            bonuses.push(new InvulnerabilityBonus(context, "invulnerability", x, 0));
         }
         else if (seed > 0.2)
         {
@@ -432,15 +440,7 @@ function create_doomguys(doomguys_list)
 
 function level_complete(current_lvl)
 {
-    bonuses = [];
-    doomguys = [];
-    cyberdemon = null;
-    debris_list = [];
-    score_list = [];
-    bonuses = [];
-    rockets = [];
-    paddle.reset();
-    ball.reset();
+    reset_loop_vars();
     arkanoid_start(current_lvl);
 }
 
@@ -452,7 +452,15 @@ function game_over()
     $('#show-score').attr("disabled", false);
     show_score_form(game_score);
 
-    bricks = [];
+    reset_loop_vars();
+
+    current_lvl = 1;
+    game_score = 0;
+    lives = config.LIVES;
+}
+
+function reset_loop_vars()
+{
     bricks = [];
     bonuses = [];
     doomguys = [];
@@ -461,11 +469,9 @@ function game_over()
     debris_list = [];
     cyberdemon = null;
     rockets = [];
+    lvl_end_timer = 0;
     ball.reset();
     paddle.reset();
-    current_lvl = 1;
-    game_score = 0;
-    lives = config.LIVES;
 }
 
 function draw_hud()
@@ -507,7 +513,7 @@ function add_score()
         url: "/projects/add_score",
         async: false,
         type: "POST",
-        data: {"score": last_score, "user": username}
+        data: {"score": last_score, "user": username, "date": Date.now()}
     }
     );
     show_score(last_score, username);

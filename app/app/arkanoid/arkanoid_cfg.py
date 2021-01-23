@@ -16,7 +16,7 @@ arkanoidConfig = {
     "BONUS_RADIUS": 12,
     "BONUS_DELAY": 500,
     "FALLING_SPEED": 0.05,
-    "BALL_MAX_SPEED": 6,
+    "BALL_SPEED": 5,
     "FRICTION": 0.2,
     "BALL_DAMAGE": 10,
     "LIVES": 3,
