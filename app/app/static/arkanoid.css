@@ -4,6 +4,7 @@ h2 {
 
 img {
      margin: 5px;
+     display: inline-block;
     }
 
 input {
@@ -69,7 +70,14 @@ input {
 .items {
         border-color: grey;
         margin: 0 auto;
+        width: 100%;
         }
+
+.monsters {
+           border-color: grey;
+           margin: 0 auto;
+           width: 100%;
+           }
 
 #background {
             margin: 0;

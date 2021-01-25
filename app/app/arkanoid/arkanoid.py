@@ -11,7 +11,7 @@ from app import db
 arkanoid = Blueprint('arkanoid', __name__, template_folder='templates')
 
 
-@arkanoid.route('/arkanoid')
+@arkanoid.route('/arkanoid', methods=['POST', 'GET'])
 def show_arkanoid():
     return render_template('/arkanoid.html')
 
@@ -34,14 +34,21 @@ def generate_lvl():
                 if new_brick:
                     bricks.append(new_brick)
     bonuses = []
-    doomguys = generate_doomguys(bricks, lvl)
+    enemies = []
+    enemies = enemies + generate_barons(bricks, lvl // 5)
+    if lvl < 5:
+        enemies = enemies + generate_enemies(bricks, lvl)
+    elif lvl < 15:
+        enemies = enemies + generate_enemies(bricks, 2 + lvl // 2)
+    else:
+        enemies = enemies + generate_enemies(bricks, 10)
 
     for brick in bricks:
-        if not brick["has_doomguy"]:
+        if not brick["has_enemy"]:
             new_bonus = generate_bonus(brick)
             if new_bonus:
                 bonuses.append(new_bonus)
-    return jsonify(bricks=bricks, bonuses=bonuses, doomguys=doomguys)
+    return jsonify(bricks=bricks, bonuses=bonuses, enemies=enemies)
 
 
 @arkanoid.route('/add_score', methods=['POST'])
@@ -60,39 +67,64 @@ def show_score():
     query = db.session.query(ArkanoidScore).order_by(ArkanoidScore.score.desc())
     answer = []
     for score in query:
-        answer.append(score.as_dict())
+        score_dict = score.as_dict()
+        if len(score_dict["username"]) > 30:
+            excess_chars = len(score_dict["username"]) - 30
+            score_dict["username"] = score_dict["username"][:-excess_chars]
+        answer.append(score_dict)
     return jsonify(answer)
 
 
 def generate_brick(x, y, lvl):
     seed = random.randint(0, 100)
     if seed <= 5 + 2 * lvl:
-        brick = {"type": 'grey', "x": x, "y": y, "has_doomguy": False}
+        brick = {"type": 'grey', "x": x, "y": y, "has_enemy": False}
     elif seed <= 30 + 2 * lvl:
-        brick = {"type": 'brown', "x": x, "y": y, "has_doomguy": False}
+        brick = {"type": 'brown', "x": x, "y": y, "has_enemy": False}
     else:
         seed = random.randint(0, 100)
         if seed <= 50:
-            brick = {"type": 'default', "x": x, "y": y, "has_doomguy": False}
+            brick = {"type": 'default', "x": x, "y": y, "has_enemy": False}
         else:
             return None
     return brick
 
 
-def generate_doomguys(bricks, count):
-    doomguys = []
+def generate_barons(bricks, count):
+    top_bricks = [(brick, bricks.index(brick)) for brick in bricks if brick["y"] == arkanoidConfig["BRICK_OFFSET_Y"] + 20]
+    seeds = []
+    barons = []
+    if count > len(top_bricks):
+        count = len(top_bricks)
+    while len(seeds) < count:
+        seed = random.randint(0, len(top_bricks) - 1)
+        if seed not in seeds:
+            seeds.append(seed)
+    for seed in seeds:
+        enemy = {"type": "baron", "x": bricks[top_bricks[seed][1]]["x"], "y": bricks[top_bricks[seed][1]]["y"]}
+        bricks[top_bricks[seed][1]]["has_enemy"] = True
+        barons.append(enemy)
+    return barons
+
+
+def generate_enemies(bricks, count):
+    enemies = []
     seeds = []
     if count > len(bricks):
         count = len(bricks)
     while len(seeds) < count:
         seed = random.randint(0, len(bricks) - 1)
-        if seed not in seeds:
+        if seed not in seeds and not bricks[seed]["has_enemy"]:
             seeds.append(seed)
     for seed in seeds:
-        doomguy = {"x": bricks[seed]["x"], "y": bricks[seed]["y"]}
-        bricks[seed]["has_doomguy"] = True
-        doomguys.append(doomguy)
-    return doomguys
+        random_enemy = random.randint(0, 100)
+        if random_enemy >= 70:
+            enemy = {"type": "imp", "x": bricks[seed]["x"], "y": bricks[seed]["y"]}
+        else:
+            enemy = {"type": "doomguy", "x": bricks[seed]["x"], "y": bricks[seed]["y"]}
+        bricks[seed]["has_enemy"] = True
+        enemies.append(enemy)
+    return enemies
 
 
 def generate_bonus(brick):

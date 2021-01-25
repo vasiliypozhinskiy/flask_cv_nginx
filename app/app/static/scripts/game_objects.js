@@ -623,6 +623,7 @@ class Ball
     else if (this.invulnerability_duration == 0 && this.hp > 0)
     {
         this.hp += hp;
+        play_audio(this.injured_sound);
     }
     if (this.hp <= 0)
     {
@@ -671,6 +672,10 @@ class Ball
     if (this.fall)
     {
         this.hp = config.BALL_HP;
+    }
+    if (this.hp == 0)
+    {
+        this.hp = 1;
     }
     this.onPaddle = true;
     this.fall = false;
@@ -1231,6 +1236,7 @@ class MegaBonus extends Bonus
         this.animation4.src = "/static/images/mega4.png";
 
         this.duration = 500;
+        this.score = 25;
     }
 
     paddleCollision(paddle)
@@ -1240,6 +1246,7 @@ class MegaBonus extends Bonus
        {
             play_audio(this.paddle_item_up_sound);
             paddle.mega_duration += this.duration;
+            game_score += this.score;
             if (!paddle.mega_activated)
             {
                 paddle.mega_activated = true;
@@ -1258,6 +1265,7 @@ class MegaBonus extends Bonus
         {
             play_audio(this.ball_item_up_sound);
             ball.mega_duration += this.duration;
+            game_score += this.score * 2;
             if (!ball.mega_activated)
             {
                 ball.mega_activated = true;
@@ -1265,6 +1273,18 @@ class MegaBonus extends Bonus
                 ball.change_size();
             }
             this.type = "for_delete";
+        }
+    }
+
+    create_score_obj(score_list)
+    {
+        if (this.was_paddle_collision)
+        {
+            score_list.push(new Score_obj(this.context, this.score, this.x, this.y));
+        }
+        if (this.was_ball_collision)
+        {
+            score_list.push(new Score_obj(this.context, this.score * 2, this.x, this.y));
         }
     }
 }
@@ -1287,7 +1307,7 @@ class SpeedBonus extends Bonus
         this.animation4.src = "/static/images/speed4.png";
 
         this.duration = 200;
-        this.score = 25;
+        this.score = 50;
 
     }
 
@@ -1590,81 +1610,81 @@ class Barrel
     }
 }
 
-class Doomguy
+class Enemy
 {
-    constructor(context, x, y)
+    constructor(context, type, x, y)
     {
         this.context = context;
-        this.x = x + 30;
-        this.height = 40;
-        this.width = 30;
-        this.y = y - this.height;
         this.frame_count = Math.floor(Math.random() * (120));
         this.onBrick = true;
         this.dead = false;
         this.shooting = false;
         this.speed = [0, 0];
-        this.score = 100;
+        this.type = type;
 
         this.animation1 = new Image();
-        this.animation1.src = "/static/images/doomguy1.png";
+        this.animation1.src = "/static/images/" + type + "1.png";
         this.animation2 = new Image();
-        this.animation2.src = "/static/images/doomguy2.png";
+        this.animation2.src = "/static/images/" + type + "2.png";
         this.animation3 = new Image();
-        this.animation3.src = "/static/images/doomguy3.png";
+        this.animation3.src = "/static/images/" + type + "3.png";
         this.animation4 = new Image();
-        this.animation4.src = "/static/images/doomguy4.png";
+        this.animation4.src = "/static/images/" + type + "4.png";
 
         this.fire_left_1 = new Image();
-        this.fire_left_1.src = "/static/images/doomguy_fire_left1.png";
+        this.fire_left_1.src = "/static/images/" + type + "_fire_left1.png";
         this.fire_left_2 = new Image();
-        this.fire_left_2.src = "/static/images/doomguy_fire_left2.png";
+        this.fire_left_2.src = "/static/images/" + type + "_fire_left2.png";
+        this.fire_left_3 = new Image();
+        this.fire_left_3.src = "/static/images/" + type + "_fire_left3.png";
         this.fire_right_1 = new Image();
-        this.fire_right_1.src = "/static/images/doomguy_fire_right1.png";
+        this.fire_right_1.src = "/static/images/" + type + "_fire_right1.png";
         this.fire_right_2 = new Image();
-        this.fire_right_2.src = "/static/images/doomguy_fire_right2.png";
+        this.fire_right_2.src = "/static/images/" + type + "_fire_right2.png";
+        this.fire_right_3 = new Image();
+        this.fire_right_3.src = "/static/images/" + type + "_fire_right3.png";
 
         this.death1 = new Image();
-        this.death1.src = "/static/images/doomguy_death1.png";
+        this.death1.src = "/static/images/" + type + "_death1.png";
         this.death2 = new Image();
-        this.death2.src = "/static/images/doomguy_death2.png";
+        this.death2.src = "/static/images/" + type + "_death2.png";
         this.death3 = new Image();
-        this.death3.src = "/static/images/doomguy_death3.png";
+        this.death3.src = "/static/images/" + type + "_death3.png";
         this.death4 = new Image();
-        this.death4.src = "/static/images/doomguy_death4.png";
+        this.death4.src = "/static/images/" + type + "_death4.png";
         this.death5 = new Image();
-        this.death5.src = "/static/images/doomguy_death5.png";
+        this.death5.src = "/static/images/" + type + "_death5.png";
         this.death6 = new Image();
-        this.death6.src = "/static/images/doomguy_death6.png";
+        this.death6.src = "/static/images/" + type + "_death6.png";
 
-        this.fire = "/static/sound/fire.wav";
-        this.death_sound_1 = "/static/sound/doomguy_death1.wav";
-        this.death_sound_2 = "/static/sound/doomguy_death2.wav";
+        this.fire_sound = "/static/sound/" + type + "_fire.wav";
+        this.death_sound_1 = "/static/sound/" + type + "_death1.wav";
+        this.death_sound_2 = "/static/sound/" + type + "_death2.wav";
+        if (this.hp > config.BALL_DAMAGE)
+        {
+            this.injured_sound = "/static/sound/" + type + "_injured.wav";
+            this.injured = new Image();
+            this.injured.src = "/static/images/" + type + "_injured.png";
+        }
+
     }
 
-    draw()
+        draw()
     {
-        if (!this.shooting && !this.dead && this.frame_count <= 120)
-        {
-            this.frame_count++;
-        }
         if(!this.shooting && !this.dead && this.frame_count > 120)
         {
             this.frame_count = 0;
         }
 
-        if (this.dead && this.frame_count < 60)
-        {
-            this.frame_count++;
-        }
-
-        if (this.shooting && this.frame_count <= 120)
-        {
-            this.frame_count++;
-        }
         if (this.shooting && this.frame_count > 120)
         {
             this.shooting = false;
+            this.frame_count = 0;
+        }
+
+        if (this.injured && this.frame_count > 30)
+        {
+            this.injured = false;
             this.frame_count = 0;
         }
 
@@ -1673,11 +1693,13 @@ class Doomguy
             if (this.x < ball.x)
             {
                 this.context.drawImage(this.fire_right_1, this.x, this.y);
+                this.frame_count ++;
                 return;
             }
             if (this.x > ball.x)
             {
                 this.context.drawImage(this.fire_left_1, this.x, this.y);
+                this.frame_count++;
                 return;
             }
         }
@@ -1686,11 +1708,13 @@ class Doomguy
             if (this.x < ball.x)
             {
                 this.context.drawImage(this.fire_right_2, this.x, this.y);
+                this.frame_count++;
                 return;
             }
             if (this.x > ball.x)
             {
                 this.context.drawImage(this.fire_left_2, this.x, this.y);
+                this.frame_count++;
                 return;
             }
         }
@@ -1698,34 +1722,47 @@ class Doomguy
         {
             if (this.x < ball.x)
             {
-                this.context.drawImage(this.fire_right_1, this.x, this.y);
+                this.context.drawImage(this.fire_right_3, this.x, this.y);
+                this.frame_count++;
                 return;
             }
             if (this.x > ball.x)
             {
-                this.context.drawImage(this.fire_left_1, this.x, this.y);
+                this.context.drawImage(this.fire_left_3, this.x, this.y);
+                this.frame_count++;
                 return;
             }
+        }
+
+        if (this.injured && this.frame_count <= 30)
+        {
+            this.context.drawImage(this.injured, this.x, this.y);
+            this.frame_count++;
+            return;
         }
 
         if (!this.dead && this.frame_count <= 30)
         {
             this.context.drawImage(this.animation1, this.x, this.y);
+            this.frame_count++;
             return;
         }
         if (!this.dead && this.frame_count <= 60)
         {
             this.context.drawImage(this.animation2, this.x, this.y);
+            this.frame_count++;
             return;
         }
         if (!this.dead && this.frame_count <= 90)
         {
             this.context.drawImage(this.animation3, this.x, this.y);
+            this.frame_count++;
             return;
         }
         if (!this.dead && this.frame_count <= 120)
         {
             this.context.drawImage(this.animation2, this.x, this.y);
+            this.frame_count++;
             return;
         }
 
@@ -1733,30 +1770,35 @@ class Doomguy
         {
             let height_diff = this.height - this.death1.height;
             this.context.drawImage(this.death1, this.x, this.y + height_diff);
+            this.frame_count++;
             return;
         }
         if (this.dead && this.frame_count <= 20)
         {
             let height_diff = this.height - this.death2.height;
             this.context.drawImage(this.death2, this.x, this.y + height_diff);
+            this.frame_count++;
             return;
         }
         if (this.dead && this.frame_count <= 30)
         {
             let height_diff = this.height - this.death3.height;
             this.context.drawImage(this.death3, this.x, this.y + height_diff);
+            this.frame_count++;
             return;
         }
         if (this.dead && this.frame_count <= 40)
         {
             let height_diff = this.height - this.death4.height;
             this.context.drawImage(this.death4, this.x, this.y + height_diff);
+            this.frame_count++;
             return;
         }
         if (this.dead && this.frame_count <= 50)
         {
             let height_diff = this.height - this.death5.height;
             this.context.drawImage(this.death5, this.x, this.y + height_diff);
+            this.frame_count++;
             return;
         }
         if (this.dead && this.frame_count <= 60)
@@ -1819,7 +1861,7 @@ class Doomguy
         {
             let brick = bricks[i];
             if ((this.y + this.height > brick.y) && (this.y < brick.y + brick.height)
-             && (this.x - this.width / 2 > brick.x) && (this.x + this.width / 2 < brick.x + brick.width)
+             && (this.x + this.width / 2 > brick.x) && (this.x + this.width / 2 < brick.x + brick.width)
              && (this.y + this.height - 5 <= brick.y))
             {
                 this.onBrick = true;
@@ -1834,22 +1876,56 @@ class Doomguy
        && (ball.x + ball.radius > this.x) && (ball.x - ball.radius < this.x + this.width))
        {
             this.frame_count = 0;
-            this.dead = true;
-            this.shooting = false;
-            play_audio(this.death_sound_1);
-            play_audio(ball.attack_sound);
-            if (this.x < ball.x)
+            this.hp -= ball.damage;
+            if (this.hp <= 0 || !this.onBrick)
             {
-                this.speed[0] = -3 - Math.random();
+                this.dead = true;
+                play_audio(this.death_sound_1);
+                if (this.x < ball.x)
+                {
+                    this.speed[0] = -3 - Math.random();
+                }
+                else
+                {
+                    this.speed[0] = 3 + Math.random();
+                }
+                game_score += this.score * 2;
+                score_list.push(new Score_obj(this.context, this.score * 2, this.x + this.width / 2, this.y + this.height / 2));
             }
             else
             {
-                this.speed[0] = 3 + Math.random();
+                this.shooting_delay += 50;
+                this.injured = true;
+                play_audio(this.injured_sound);
+
+                let vector = [ball.x - (this.x + this.width / 2), ball.y - (this.y + this.height / 2)];
+                let length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
+                ball.speed = [(vector[0] / length * ball.start_speed), (vector[1] / length * ball.start_speed)];
+                ball.change_acceleration([vector[0] / length * 5, vector[1] / length * 5]);
             }
+            this.shooting = false;
+            play_audio(ball.attack_sound);
             ball.animation = true;
-            game_score += this.score * 2;
-            score_list.push(new Score_obj(this.context, this.score * 2, this.x + this.width / 2, this.y + this.height / 2));
        }
+    }
+}
+
+class Doomguy extends Enemy
+{
+    constructor(context, type, x, y)
+    {
+        super(context, type, x, y)
+        this.x = x + 30;
+        this.height = 40;
+        this.width = 30;
+        this.y = y - this.height;
+        this.hp = 10;
+        this.score = 100;
+        this.type = type;
+
+        this.fire_left_3 = this.fire_left_1;
+        this.fire_right_3 = this.fire_right_1;
+
     }
 
     checkForShooting()
@@ -1859,14 +1935,14 @@ class Doomguy
             let distX = this.x - ball.x;
             let distY = this.y - ball.y;
             let distance = Math.sqrt(distX * distX + distY * distY);
-            if ((distance <= ball.radius + 100) && (this.y < ball.y + 10) && (this.y + this.height > ball.y + ball.radius - 10))
+            if ((distance <= ball.radius + 100) &&
+            (this.y < ball.y + ball.radius - 10) && (this.y + this.height > ball.y - ball.radius + 10))
             {
                 if (!this.shooting && ball.invisibility_duration == 0)
                 {
                     this.shooting = true;
                     ball.injured = true;
-                    play_audio(this.fire);
-                    play_audio(ball.injured_sound);
+                    play_audio(this.fire_sound);
                     this.frame_count = 0;
                     ball.change_hp(-1);
                     if (this.x < ball.x)
@@ -1878,6 +1954,108 @@ class Doomguy
                         ball.change_acceleration([-7 - Math.random() * 5, 0]);
                     }
                 }
+            }
+        }
+    }
+}
+
+class Imp extends Enemy
+{
+    constructor(context, type, x, y)
+    {
+        super(context, type, x, y)
+        this.x = x + 30;
+        this.height = 40;
+        this.width = 30;
+        this.y = y - this.height;
+        this.hp = 10;
+        this.score = 100;
+        this.shooting_delay = 400 + Math.floor(Math.random() * 400);
+        this.type = type;
+    }
+
+    checkForShooting()
+    {
+        if (!this.dead && this.onBrick)
+        {
+            if (this.shooting_delay == 40)
+            {
+                this.frame_count = 0;
+            }
+
+             if (this.shooting_delay < 40)
+            {
+                this.shooting = true;
+            }
+
+            if (this.shooting && this.shooting_delay == 0)
+            {
+                play_audio(this.fire_sound);
+                if (this.x + this.width / 2 < ball.x)
+                {
+                    rockets.push(new Red_fire(this.context, "red_fire", this.x + this.width, this.y + this.height / 2 - 5));
+                }
+                else
+                {
+                    rockets.push(new Red_fire(this.context, "red_fire", this.x, this.y + this.height / 2 - 5));
+                }
+                this.shooting_delay = 400 + Math.floor(Math.random() * 400)
+            }
+
+            if (this.shooting_delay > 0)
+            {
+                this.shooting_delay --;
+            }
+        }
+    }
+}
+
+class Baron extends Enemy
+{
+    constructor(context, type, x, y)
+    {
+        super(context, type, x, y)
+        this.x = x + 30;
+        this.height = 50;
+        this.width = 30;
+        this.y = y - this.height;
+        this.hp = 30;
+        this.score = 200;
+        this.shooting_delay = 300 + Math.floor(Math.random() * 300);
+        this.type = type;
+    }
+
+    checkForShooting()
+    {
+        if (!this.dead && this.onBrick)
+        {
+            if (this.shooting_delay == 40)
+            {
+                this.frame_count = 0;
+            }
+
+             if (this.shooting_delay < 40)
+            {
+                this.shooting = true;
+            }
+
+            if (this.shooting && this.shooting_delay == 0)
+            {
+                play_audio(this.fire_sound);
+                if (this.x + this.width / 2 < ball.x)
+                {
+                    rockets.push(new Green_fire(this.context, "green_fire", this.x + this.width, this.y + this.height / 2 - 5));
+                }
+                else
+                {
+                    rockets.push(new Green_fire(this.context, "green_fire", this.x, this.y + this.height / 2 - 5));
+                }
+                this.shooting_delay = 300 + Math.floor(Math.random() * 300)
+            }
+
+            if (this.shooting_delay > 0)
+            {
+                this.shooting_delay --;
             }
         }
     }
@@ -2188,11 +2366,11 @@ class Cyberdemon
                 play_audio(this.fire_sound);
                 if (this.x + this.width / 2 < ball.x)
                 {
-                    rockets.push(new Rocket(this.context, this.x + this.width + 15, this.y + this.height / 2 - 10));
+                    rockets.push(new Rocket(this.context, "rocket", this.x + this.width + 15, this.y + this.height / 2 - 10));
                 }
                 else
                 {
-                    rockets.push(new Rocket(this.context, this.x + 15, this.y + this.height / 2));
+                    rockets.push(new Rocket(this.context, "rocket",this.x + 15, this.y + this.height / 2));
                 }
                 this.shooting_delay = 10;
             }
@@ -2236,8 +2414,6 @@ class Cyberdemon
                 let length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
                 ball.speed = [(vector[0] / length * ball.start_speed), (vector[1] / length * ball.start_speed)];
                 ball.change_acceleration([vector[0] / length * 5, vector[1] / length * 5]);
-
-
             }
             this.shooting = false;
             ball.animation = true;
@@ -2245,36 +2421,37 @@ class Cyberdemon
     }
 }
 
-class Rocket
+class Projectile
 {
-    constructor(context, x, y)
+    constructor(context, type, x, y)
     {
         this.context = context;
         this.x = x;
         this.y = y;
-        this.width = 26;
-        this.height = 14;
+        this.type = type;
 
         let vector = [ball.x - this.x, ball.y - this.y];
         let length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
-        this.speed = [vector[0] / length, vector[1] / length];
+        this.speed = [vector[0] / length * 3, vector[1] / length * 3];
         this.acceleration = [0, 0];
-        this.radius = 7;
+        this.acceleration_multiplier = 0.0005;
 
         this.frame_count = 0;
         this.explode = false;
 
-        this.image = new Image();
-        this.image.src = "/static/images/rocket.png";
+        this.image1 = new Image();
+        this.image1.src = "/static/images/" + type + "1.png";
+        this.image2 = new Image();
+        this.image2.src = "/static/images/" + type + "2.png";
 
         this.animation1 = new Image();
-        this.animation1.src = "/static/images/explosion1.png";
+        this.animation1.src = "/static/images/" + type + "_explosion1.png";
         this.animation2 = new Image();
-        this.animation2.src = "/static/images/explosion2.png";
+        this.animation2.src = "/static/images/" + type + "_explosion2.png";
         this.animation3 = new Image();
-        this.animation3.src = "/static/images/explosion3.png";
+        this.animation3.src = "/static/images/" + type + "_explosion3.png";
 
-        this.explosion_sound = "/static/sound/rocket_explosion.wav"
+        this.explosion_sound = "/static/sound/" + type + "_explosion.wav"
     }
 
     draw()
@@ -2320,8 +2497,58 @@ class Rocket
         {
             this.context.rotate(-angle);
         }
-        this.context.drawImage(this.image, 0, 0);
+        if (this.frame_count < 10)
+        {
+            this.context.drawImage(this.image1, 0, 0);
+        }
+        else
+        {
+            this.context.drawImage(this.image2, 0, 0);
+        }
+        if (this.frame_count < 20)
+        {
+            this.frame_count ++;
+        }
+        else
+        {
+            this.frame_count = 0;
+        }
         this.context.restore();
+    }
+
+    move()
+    {
+        if (!this.explode)
+        {
+            this.x += this.speed[0];
+            this.y += this.speed[1];
+
+            this.speed[0] += this.acceleration[0];
+            this.speed[1] += this.acceleration[1];
+
+            let acceleration_vector = [ball.x - this.x, ball.y - this.y];
+
+            if (ball.invulnerability_duration == 0)
+            {
+                this.acceleration = [acceleration_vector[0] * this.acceleration_multiplier, acceleration_vector[1] * this.acceleration_multiplier];
+            }
+            else
+            {
+                this.acceleration = [this.acceleration[0] * this.acceleration_multiplier, this.acceleration[1] * this.acceleration_multiplier];
+            }
+        }
+    }
+}
+
+class Rocket extends Projectile
+{
+    constructor(context, type, x, y)
+    {
+        super(context, type, x, y)
+        this.width = 26;
+        this.height = 14;
+
+        this.radius = 10;
     }
 
     collision()
@@ -2357,20 +2584,98 @@ class Rocket
             }
         }
     }
+}
 
-    move()
+class Red_fire extends Projectile
+{
+    constructor(context, type, x, y)
     {
+        super(context, type, x, y)
+        this.width = 26;
+        this.height = 10;
+        this.radius = 10;
+        this.acceleration_multiplier = 0.0001;
+    }
+
+    collision()
+    {
+        if (!this.explode && ((this.x - this.radius < 0) || (this.x + this.radius > config.CANVAS_WIDTH)
+        || (this.y - this.radius < 0) || (this.y + this.radius > config.CANVAS_HEIGHT)))
+        {
+            this.explode = true;
+            play_audio(this.explosion_sound);
+            this.speed = [0, 0];
+        }
+
         if (!this.explode)
         {
-            this.x += this.speed[0];
-            this.y += this.speed[1];
+            let distX = this.x - ball.x;
+            let distY = this.y - ball.y;
+            let distance = Math.sqrt(distX * distX + distY * distY);
+            if (distance <= this.radius + ball.radius)
+            {
+                this.explode = true;
+                if (ball.onPaddle)
+                {
+                    ball.onPaddle = false;
+                    ball.speed = this.speed;
+                    ball.speed_duration += 50;
+                }
+                play_audio(this.explosion_sound);
 
-            this.speed[0] += this.acceleration[0];
-            this.speed[1] += this.acceleration[1];
+                let vector = [ball.x - this.x, ball.y - this.y];
+                let length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
+                ball.speed_duration += 50;
+                ball.change_acceleration([vector[0] / length * 10, vector[1] / length * 10]);
+                ball.change_hp(-1);
+            }
+        }
+    }
+}
 
-            let acceleration_vector = [ball.x - this.x, ball.y - this.y];
+class Green_fire extends Projectile
+{
+    constructor(context, type, x, y)
+    {
+        super(context, type, x, y)
+        this.width = 27;
+        this.height = 10;
 
-            this.acceleration = [acceleration_vector[0] * 0.0005, acceleration_vector[1] * 0.0005];
+        this.radius = 10;
+        this.acceleration_multiplier = 0.0003;
+    }
+
+    collision()
+    {
+        if (!this.explode && ((this.x - this.radius < 0) || (this.x + this.radius > config.CANVAS_WIDTH)
+        || (this.y - this.radius < 0) || (this.y + this.radius > config.CANVAS_HEIGHT)))
+        {
+            this.explode = true;
+            play_audio(this.explosion_sound);
+            this.speed = [0, 0];
+        }
+
+        if (!this.explode)
+        {
+            let distX = this.x - ball.x;
+            let distY = this.y - ball.y;
+            let distance = Math.sqrt(distX * distX + distY * distY);
+            if (distance <= this.radius + ball.radius)
+            {
+                this.explode = true;
+                if (ball.onPaddle)
+                {
+                    ball.onPaddle = false;
+                    ball.speed = this.speed;
+                }
+                play_audio(this.explosion_sound);
+
+                let vector = [ball.x - this.x, ball.y - this.y];
+                let length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
+                ball.speed = [ball.speed[0] / 2 , ball.speed[1] / 2];
+                ball.change_acceleration([vector[0] / length * 5, vector[1] / length * 5]);
+                ball.change_hp(-1);
+            }
         }
     }
 }

@@ -54,7 +54,7 @@ SPIKES.src = "/static/images/spikes.png";
 var bricks = [];
 var debris_list = [];
 var bonuses = [];
-var doomguys = [];
+var enemies = [];
 var cyberdemon = null;
 var rockets = [];
 
@@ -209,15 +209,15 @@ function loop() {
                 }
             }
 
-            for (let i = 0; i < doomguys.length; i++)
+            for (let i = 0; i < enemies.length; i++)
             {
-                let current_doomguy = doomguys[i];
-                current_doomguy.move();
-                current_doomguy.draw();
-                current_doomguy.brickCollision(bricks);
-                current_doomguy.checkForShooting();
-                current_doomguy.ballCollision();
-                current_doomguy.friction();
+                let current_enemy = enemies[i];
+                current_enemy.move();
+                current_enemy.draw();
+                current_enemy.brickCollision(bricks);
+                current_enemy.checkForShooting();
+                current_enemy.ballCollision();
+                current_enemy.friction();
             }
 
             if (cyberdemon != null)
@@ -308,7 +308,7 @@ function arkanoid_start(lvl)
             success: function (data) {
                 bricks = create_bricks(data["bricks"]);
                 bonuses = create_bonuses(data["bonuses"]);
-                doomguys = create_doomguys(data["doomguys"]);
+                enemies = create_enemies(data["enemies"]);
                 message_list.push(new Message(context, "Level " + lvl));
                 play_audio(start_sound);
                 start_animation(config.FPS);
@@ -327,7 +327,7 @@ function random_bonus_generation()
     {
         bonus_delay = config.BONUS_DELAY;
         let seed = Math.random();
-        let x = 40 + Math.floor(Math.random() * (config.CANVAS_WIDTH - 80));
+        let x = Math.floor(Math.random() * (config.CANVAS_WIDTH - 80));
         play_audio(start_sound);
 
         if (seed > 0.95)
@@ -392,50 +392,63 @@ function create_bonuses(bonuses_list)
     for (let i = 0; i < bonuses_list.length; i++)
     {
         let bonus = bonuses_list[i];
+        let random_x = Math.floor(Math.random() * 61 - 30);
         if (bonus["type"] == "life")
         {
-            current_bonus = new LifeBonus(context, bonus["type"], bonus["x"], bonus["y"])
+            current_bonus = new LifeBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
         if (bonus["type"] == "invisibility")
         {
-            current_bonus = new InvisibilityBonus(context, bonus["type"], bonus["x"], bonus["y"])
+            current_bonus = new InvisibilityBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
         if (bonus["type"] == "mega")
         {
-            current_bonus = new MegaBonus(context, bonus["type"], bonus["x"], bonus["y"])
+            current_bonus = new MegaBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
         if (bonus["type"] == "speed")
         {
-            current_bonus = new SpeedBonus(context, bonus["type"], bonus["x"], bonus["y"])
+            current_bonus = new SpeedBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
         if (bonus["type"] == "invulnerability")
         {
-            current_bonus = new InvulnerabilityBonus(context, bonus["type"], bonus["x"], bonus["y"])
+            current_bonus = new InvulnerabilityBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
         if (bonus["type"] == "hp")
         {
-            current_bonus = new HpBonus(context, bonus["type"], bonus["x"], bonus["y"])
+            current_bonus = new HpBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
         if (bonus["type"] == "barrel")
         {
-            current_bonus = new Barrel(context, bonus["type"], bonus["x"], bonus["y"])
+            current_bonus = new Barrel(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
         bonuses.push(current_bonus);
     }
     return bonuses;
 }
 
-function create_doomguys(doomguys_list)
+function create_enemies(enemies_list)
 {
-    let doomguys = [];
-    let current_doomguy;
-    for (let i = 0; i < doomguys_list.length; i++)
+    let enemies = [];
+    let current_enemy;
+    for (let i = 0; i < enemies_list.length; i++)
     {
-        let doomguy = doomguys_list[i];
-        current_doomguy = new Doomguy(context, doomguy["x"], doomguy["y"]);
-        doomguys.push(current_doomguy);
+        let random_x = Math.floor(Math.random() * 41 - 20);
+        let enemy = enemies_list[i];
+        if (enemy["type"] == "doomguy")
+        {
+            current_enemy = new Doomguy(context, enemy["type"], enemy["x"] + random_x, enemy["y"]);
+        }
+        if (enemy["type"] == "imp")
+        {
+            current_enemy = new Imp(context, enemy["type"], enemy["x"] + random_x, enemy["y"]);
+        }
+        if (enemy["type"] == "baron")
+        {
+            current_enemy = new Baron(context, enemy["type"], enemy["x"] + random_x, enemy["y"]);
+        }
+        enemies.push(current_enemy);
     }
-    return doomguys;
+    return enemies;
 }
 
 function level_complete(current_lvl)
@@ -463,7 +476,7 @@ function reset_loop_vars()
 {
     bricks = [];
     bonuses = [];
-    doomguys = [];
+    enemies = [];
     score_list = [];
     message_list = [];
     debris_list = [];
@@ -500,13 +513,21 @@ function show_score_form(score)
     $('#add-score-container').prepend("<h2>Game over</h2><h2>Your score: " + last_score + "</h2>")
 }
 
-function add_score()
-{
-    let username = $("#add-score-form").serialize().split("=")[1]
+$('#add-score-form').on('submit', function (event) {
+    event.preventDefault();
+    let username = $("#add-score-form").serialize().split("=")[1];
     if (username.length === 0)
     {
-        return;
+        return false;
     }
+    else
+    {
+        add_score(username);
+    }
+});
+
+function add_score(username)
+{
     $('#add-score-container').css({"opacity": "0"});
     $("#add-score-form")[0].reset();
     $.ajax({
@@ -533,6 +554,11 @@ function show_score(score, user)
             {
                 var rows_count = data.length;
                 var decoded_user = decodeURIComponent(user);
+                if (decoded_user.length > 30)
+                {
+                    let excess_chars = decoded_user.length - 30;
+                    decoded_user = decoded_user.substr(0, decoded_user.length - excess_chars);
+                }
                 if (data.length > 20)
                 {
                     rows_count = 20;
@@ -545,7 +571,7 @@ function show_score(score, user)
                     if ((score == data[i]["score"])&&(decoded_user == data[i]["username"])&&(!current_user_shown))
                     {
                         current_user_shown = true;
-                        $("#top-scores").append("<tr style='color: red'></tr>");
+                        $("#top-scores").append("<tr style='color: black'></tr>");
                         $("#top-scores > tr:last").append("<td align='center'>" + (i + 1) + "</td>"
                         + "<td align='center'>" + data[i]["username"] + "</td>"
                         + "<td align='center'>" + data[i]["score"] +"</td>"
@@ -570,7 +596,7 @@ function show_score(score, user)
                     {
                         if ((score == data[i]["score"])&&(decoded_user == data[i]["username"]))
                         {
-                            $("#top-scores").append("<tr style='color: red'></tr>");
+                            $("#top-scores").append("<tr style='color: black'></tr>");
                             $("#top-scores > tr:last").append("<td align='center'>" + (i + 1) + "</td>"
                             + "<td align='center'>" + data[i]["username"] + "</td>"
                             + "<td align='center'>" + data[i]["score"] +"</td>"

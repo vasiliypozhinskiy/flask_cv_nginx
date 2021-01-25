@@ -22,7 +22,7 @@ Doomanoid
         <div class="form" id="add-score-container">
             <form id="add-score-form" action="" method="POST" autocomplete="off">
                 <input class="add-score-input" type="text" name="name" placeholder="Enter your name" />
-                <input class="button" id="add-score-btn" type="button" value="Save result" onclick="add_score()"/>
+                <input class="button" id="add-score-btn" type="submit" value="Save result"/>
             </form>
         </div>
         <input class="button" id="start" type="button" value="Play" onclick="arkanoid_start(1)">
@@ -35,6 +35,7 @@ Doomanoid
         <h4>Управление</h4>
         <p>
             Стрелки — перемещение платформы. Пробел — запуск какодемона.
+            Если платформа в момент столкновения с какодемоном находится в движении, ему придаётся ускорение.
         </p>
         <h4>Предметы</h4>
         <table class="items" border="1" align="center">
@@ -86,17 +87,33 @@ Doomanoid
                <td>Взрывается и отталкивает какодемона. Отнимает 1 hp.</td>
                <td>Остаётся на платформе. При падении на шипы взрывается и даёт 50 очков.</td>
            </tr>
+        </table>
+
+        <h4>Монстры</h4>
+        <table class="monsters" border="1" align="center">
            <tr>
                <td><img src="{{url_for('static', filename='images/doomguy1.png')}}"></td>
                <td>Думгай</td>
-               <td>Умирает и даёт 200 очков. При приближении какодемона стреляет по нему и отнимает 1 hp.</td>
-               <td>При столкновении с платформой ничего не происходит. При падении на шипы даёт 100 очков.</td>
+               <td>Стреляет при приближении какодемона.</td>
+               <td>Сильно отталкивает какодемона.</td>
+           </tr>
+            <tr>
+               <td><img src="{{url_for('static', filename='images/imp1.png')}}"></td>
+               <td>Чёрт</td>
+               <td>Стреляет самонаводящимися огненными шарами.</td>
+               <td>На время ускоряет какодемона в 2 раза.</td>
+           </tr>
+            <tr>
+               <td><img src="{{url_for('static', filename='images/baron1.png')}}"></td>
+               <td>Барон ада</td>
+               <td>Стреляет самонаводящейся зелёной плазмой.</td>
+               <td>Замедляет какодемона в 2 раза.</td>
            </tr>
             <tr>
                <td><img src="{{url_for('static', filename='images/cyberdemon_right3.png')}}"></td>
                <td>Кибердемон</td>
-               <td>Теряет немного хп.</td>
-               <td>Такого не должно происходить.</td>
+               <td>Стреляет залпом самонаводящихся ракет. Количество ракет зависит от уровня.</td>
+               <td>Количество hp зависит от уровня.</td>
            </tr>
         </table>
         <p>
