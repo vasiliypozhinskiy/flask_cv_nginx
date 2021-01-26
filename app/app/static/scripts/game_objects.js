@@ -1660,16 +1660,9 @@ class Enemy
         this.fire_sound = "/static/sound/" + type + "_fire.wav";
         this.death_sound_1 = "/static/sound/" + type + "_death1.wav";
         this.death_sound_2 = "/static/sound/" + type + "_death2.wav";
-        if (this.hp > config.BALL_DAMAGE)
-        {
-            this.injured_sound = "/static/sound/" + type + "_injured.wav";
-            this.injured = new Image();
-            this.injured.src = "/static/images/" + type + "_injured.png";
-        }
-
     }
 
-        draw()
+    draw()
     {
         if(!this.shooting && !this.dead && this.frame_count > 120)
         {
@@ -1736,7 +1729,7 @@ class Enemy
 
         if (this.injured && this.frame_count <= 30)
         {
-            this.context.drawImage(this.injured, this.x, this.y);
+            this.context.drawImage(this.injure, this.x, this.y);
             this.frame_count++;
             return;
         }
@@ -2023,6 +2016,10 @@ class Baron extends Enemy
         this.score = 200;
         this.shooting_delay = 300 + Math.floor(Math.random() * 300);
         this.type = type;
+
+        this.injured_sound = "/static/sound/" + type + "_injured.wav";
+        this.injure = new Image();
+        this.injure.src = "/static/images/" + type + "_injured.png";
     }
 
     checkForShooting()
