@@ -2,45 +2,59 @@
 
 const canvas = document.getElementById("arkanoid");
 const context = canvas.getContext("2d");
-var requestId = 0;
-var stopped = false;
-var muted = false;
-var fps_enable = false;
-var lvl_ended = false;
 
-var left_arrow_pressed = false;
-var right_arrow_pressed = false;
-var up_arrow_pressed = false;
-var down_arrow_pressed = false;
-var space_pressed = false;
+let stopped = false;
+let muted = false;
+let fps_enable = false;
+let lvl_ended = false;
+
+let left_arrow_pressed = false;
+let right_arrow_pressed = false;
+let up_arrow_pressed = false;
+let down_arrow_pressed = false;
+let space_pressed = false;
 
 document.addEventListener("keydown", function(event)
 {
-if (event.keyCode == 37) {
-    left_arrow_pressed = true;
-} else if (event.keyCode == 39) {
-    right_arrow_pressed = true;
-} else if (event.keyCode == 38) {
-    up_arrow_pressed = true;
-} else if (event.keyCode == 40) {
-    down_arrow_pressed = true;
-} else if (event.keyCode == 32) {
-    space_pressed = true;
-}
+    switch (event.key)
+    {
+        case "ArrowLeft":
+            left_arrow_pressed = true;
+            break;
+        case "ArrowRight":
+            right_arrow_pressed = true;
+            break;
+        case "ArrowUp":
+            up_arrow_pressed = true;
+            break;
+        case "ArrowDown":
+            down_arrow_pressed = true;
+            break;
+        case " ":
+            space_pressed = true;
+            break;
+    }
 });
 
-document.addEventListener("keyup", function(event) {
-if (event.keyCode == 37) {
-    left_arrow_pressed = false;
-} else if (event.keyCode == 39) {
-    right_arrow_pressed = false;
-} else if (event.keyCode == 38) {
-    up_arrow_pressed = false;
-} else if (event.keyCode == 40) {
-    down_arrow_pressed = false;
-} else if (event.keyCode == 32) {
-    space_pressed = false;
-}
+document.addEventListener("keyup", function(event)
+{
+    switch (event.key) {
+        case "ArrowLeft":
+            left_arrow_pressed = false;
+            break;
+        case "ArrowRight":
+            right_arrow_pressed = false;
+            break;
+        case "ArrowUp":
+            up_arrow_pressed = false;
+            break;
+        case "ArrowDown":
+            down_arrow_pressed = false;
+            break;
+        case " ":
+            space_pressed = false;
+            break;
+    }
 });
 
 const paddle = new Paddle(context, canvas.width/2 - config.PADDLE_WIDTH / 2, canvas.height - config.PADDLE_HEIGHT - config.OFFSET_Y);
@@ -49,31 +63,31 @@ const ball = new Ball(context, canvas.width/2, paddle.y - config.BALL_RADIUS);
 const left_torch = new Torch(context, 0, canvas.height);
 const right_torch = new Torch(context, canvas.width - 26, canvas.height);
 const SPIKES = new Image();
-SPIKES.src = "/static/images/spikes.png";
+SPIKES.src = "/static/images/arkanoid/spikes.png";
 
-var bricks = [];
-var debris_list = [];
-var bonuses = [];
-var enemies = [];
-var cyberdemon = null;
-var rockets = [];
+let bricks = [];
+let debris_list = [];
+let bonuses = [];
+let enemies = [];
+let cyberdemon = null;
+let rockets = [];
 
-var score_list = [];
-var message_list = [];
-var bonus_delay = config.BONUS_DELAY;
+let score_list = [];
+let message_list = [];
+let bonus_delay = config.BONUS_DELAY;
 
-var current_lvl = 1;
+let current_lvl = 1;
 
 const start_sound = "/static/sound/newlvl.wav";
-var lives = config.LIVES;
-var game_score = 0;
-var last_score = 0;
-var lvl_end_timer = 0;
-var invulnerability_trigger = false;
+let lives = config.LIVES;
+let game_score = 0;
+let last_score = 0;
+let lvl_end_timer = 0;
+let invulnerability_trigger = false;
 
 const FRAME_MIN_TIME = (1000/60) * (60 / config.FPS) - (1000/60) * 0.5;
 
-var last_loop, this_loop;
+let last_loop, this_loop;
 
 function start_animation(fps)
 {
@@ -88,7 +102,6 @@ function loop() {
         if (this_loop - last_loop < FRAME_MIN_TIME)
         {
             requestAnimationFrame(loop);
-            return;
         }
         else
         {
@@ -107,14 +120,14 @@ function loop() {
                 $("#background").css({"filter": "grayscale(100%) invert(100%)"});
                 $("canvas").css({"filter": "grayscale(100%) invert(100%)"});
             }
-            if (ball.invulnerability_duration == 0 && invulnerability_trigger)
+            if (ball.invulnerability_duration === 0 && invulnerability_trigger)
             {
                 invulnerability_trigger = false;
                 $("#background").css({"filter": "none"});
                 $("canvas").css({"filter": "none"});
             }
 
-            if ((lives <= 0) && (ball.frame_count == 100))
+            if ((lives <= 0) && (ball.frame_count === 100))
             {
                 $("#background").css({"filter": "none"});
                 $("canvas").css({"filter": "none"});
@@ -169,12 +182,12 @@ function loop() {
             ball.friction();
 
             ball.paddleCollision(paddle);
-            if (bricks.length == 0)
+            if (bricks.length === 0)
             {
                 lvl_end_timer ++;
             }
 
-            if (lvl_end_timer == 240)
+            if (lvl_end_timer === 240)
             {
                 current_lvl += 1;
                 level_complete(current_lvl);
@@ -187,7 +200,7 @@ function loop() {
                 current_brick.move();
                 current_brick.draw();
                 ball.brickCollision(current_brick);
-                if (current_brick.type == "for_delete")
+                if (current_brick.type === "for_delete")
                 {
                     current_brick.create_score_obj(score_list);
                     bricks.splice(i, 1);
@@ -202,9 +215,8 @@ function loop() {
                 current_bonus.brickCollision(bricks);
                 current_bonus.paddleCollision(paddle);
                 current_bonus.ballCollision(ball);
-                if (current_bonus.type == "for_delete")
+                if (current_bonus.type === "for_delete")
                 {
-                    current_bonus.create_score_obj(score_list);
                     bonuses.splice(i, 1);
                 }
             }
@@ -368,15 +380,15 @@ function create_bricks(bricks_list)
     {
             let brick = bricks_list[i];
             let current_brick;
-            if (brick["type"] == "brown")
+            if (brick["type"] === "brown")
             {
                 current_brick = new BrownBrick(context, brick["type"], brick["x"], brick["y"]);
             }
-            if (brick["type"] == "default")
+            if (brick["type"] === "default")
             {
                 current_brick = new DefaultBrick(context, brick["type"], brick["x"], brick["y"]);
             }
-            if (brick["type"] == "grey")
+            if (brick["type"] === "grey")
             {
                 current_brick = new GreyBrick(context, brick["type"], brick["x"], brick["y"]);
             }
@@ -393,31 +405,31 @@ function create_bonuses(bonuses_list)
     {
         let bonus = bonuses_list[i];
         let random_x = Math.floor(Math.random() * 61 - 30);
-        if (bonus["type"] == "life")
+        if (bonus["type"] === "life")
         {
             current_bonus = new LifeBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
-        if (bonus["type"] == "invisibility")
+        if (bonus["type"] === "invisibility")
         {
             current_bonus = new InvisibilityBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
-        if (bonus["type"] == "mega")
+        if (bonus["type"] === "mega")
         {
             current_bonus = new MegaBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
-        if (bonus["type"] == "speed")
+        if (bonus["type"] === "speed")
         {
             current_bonus = new SpeedBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
-        if (bonus["type"] == "invulnerability")
+        if (bonus["type"] === "invulnerability")
         {
             current_bonus = new InvulnerabilityBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
-        if (bonus["type"] == "hp")
+        if (bonus["type"] === "hp")
         {
             current_bonus = new HpBonus(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
-        if (bonus["type"] == "barrel")
+        if (bonus["type"] === "barrel")
         {
             current_bonus = new Barrel(context, bonus["type"], bonus["x"] + random_x, bonus["y"])
         }
@@ -434,15 +446,15 @@ function create_enemies(enemies_list)
     {
         let random_x = Math.floor(Math.random() * 41 - 20);
         let enemy = enemies_list[i];
-        if (enemy["type"] == "doomguy")
+        if (enemy["type"] === "doomguy")
         {
             current_enemy = new Doomguy(context, enemy["type"], enemy["x"] + random_x, enemy["y"]);
         }
-        if (enemy["type"] == "imp")
+        if (enemy["type"] === "imp")
         {
             current_enemy = new Imp(context, enemy["type"], enemy["x"] + random_x, enemy["y"]);
         }
-        if (enemy["type"] == "baron")
+        if (enemy["type"] === "baron")
         {
             current_enemy = new Baron(context, enemy["type"], enemy["x"] + random_x, enemy["y"]);
         }
@@ -543,7 +555,7 @@ function add_score(username)
 function show_score(score, user)
 {
     let current_user_shown = false;
-    if ($('#top-scores').css("opacity") == 0)
+    if ($('#top-scores').css("opacity") === "0")
     {
     $('#add-score-container').css({"opacity": "0"});
     $.ajax({
@@ -552,8 +564,8 @@ function show_score(score, user)
         contentType: "application/json",
         success: function(data)
             {
-                var rows_count = data.length;
-                var decoded_user = decodeURIComponent(user);
+                let rows_count = data.length;
+                let decoded_user = decodeURIComponent(user);
                 if (decoded_user.length > 30)
                 {
                     let excess_chars = decoded_user.length - 30;
@@ -568,21 +580,21 @@ function show_score(score, user)
                 $("#top-scores").append("<tr><th width='10%'>№</th><th width='50%'>Name</th><th width='20%'>Score</th><th width='10%'>Date</th></tr>")
                 for (let i = 0; i < rows_count; i++)
                 {
-                    if ((score == data[i]["score"])&&(decoded_user == data[i]["username"])&&(!current_user_shown))
+                    if ((score === data[i]["score"])&&(decoded_user === data[i]["username"])&&(!current_user_shown))
                     {
                         current_user_shown = true;
                         $("#top-scores").append("<tr style='color: black'></tr>");
-                        $("#top-scores > tr:last").append("<td align='center'>" + (i + 1) + "</td>"
-                        + "<td align='center'>" + data[i]["username"] + "</td>"
-                        + "<td align='center'>" + data[i]["score"] +"</td>"
-                        + "<td align='center'>" + data[i]["date"] +"</td>");
+                        $("#top-scores > tr:last").append("<td>" + (i + 1) + "</td>"
+                        + "<td>" + data[i]["username"] + "</td>"
+                        + "<td>" + data[i]["score"] +"</td>"
+                        + "<td>" + data[i]["date"] +"</td>");
                     } else
                     {
                         $("#top-scores").append("<tr></tr>");
-                        $("#top-scores > tr:last").append("<td align='center'>" + (i + 1) + "</td>"
-                        + "<td align='center'>" + data[i]["username"] + "</td>"
-                        + "<td align='center'>" + data[i]["score"] +"</td>"
-                        + "<td align='center'>" + data[i]["date"] +"</td>");
+                        $("#top-scores > tr:last").append("<td>" + (i + 1) + "</td>"
+                        + "<td>" + data[i]["username"] + "</td>"
+                        + "<td>" + data[i]["score"] +"</td>"
+                        + "<td>" + data[i]["date"] +"</td>");
                     }
                 }
 
@@ -591,16 +603,16 @@ function show_score(score, user)
                     $("#top-scores > tr:last").remove();
                     $("#top-scores > tr:last").remove();
                     $("#top-scores").append("<tr></tr>");
-                    $("#top-scores > tr:last").append("<td align='center'>...</td><td align='center'>...</td><td align='center'>...</td><td align='center'>...</td>");
+                    $("#top-scores > tr:last").append("<td>...</td><td>...</td><td>...</td><td>...</td>");
                     for (let i = rows_count; i < data.length; i++)
                     {
-                        if ((score == data[i]["score"])&&(decoded_user == data[i]["username"]))
+                        if ((score === data[i]["score"])&&(decoded_user === data[i]["username"]))
                         {
                             $("#top-scores").append("<tr style='color: black'></tr>");
-                            $("#top-scores > tr:last").append("<td align='center'>" + (i + 1) + "</td>"
-                            + "<td align='center'>" + data[i]["username"] + "</td>"
-                            + "<td align='center'>" + data[i]["score"] +"</td>"
-                            + "<td align='center'>" + data[i]["date"] +"</td>");
+                            $("#top-scores > tr:last").append("<td>" + (i + 1) + "</td>"
+                            + "<td>" + data[i]["username"] + "</td>"
+                            + "<td>" + data[i]["score"] +"</td>"
+                            + "<td>" + data[i]["date"] +"</td>");
                             break;
                         }
                     }
@@ -629,7 +641,7 @@ function show_fps()
     context.fillText("FPS: " + currentFPS, 400, 24);
 }
 
-function pause(requestId)
+function pause()
 {
     $("#arkanoid").focus();
     if (stopped)
@@ -640,7 +652,6 @@ function pause(requestId)
     else
     {
         stopped = true;
-        cancelAnimationFrame(requestId)
     }
 }
 
