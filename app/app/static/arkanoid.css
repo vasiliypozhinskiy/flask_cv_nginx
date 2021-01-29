@@ -94,7 +94,7 @@ td {
           z-index: 10;
           }
 
-@media (max-width: 1000px) {
+@media screen and (max-width: 1000px) {
     .content{
         width: 100%;
         margin: 0 auto;
@@ -105,7 +105,7 @@ td {
     }
 }
 
-@media (max-width: 800px) {
+@media screen and (max-width: 800px) {
     .content{
         width: 90%;
     }

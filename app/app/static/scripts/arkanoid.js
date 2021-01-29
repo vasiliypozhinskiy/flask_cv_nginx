@@ -117,13 +117,13 @@ function loop() {
             if (ball.invulnerability_duration > 0 && !invulnerability_trigger)
             {
                 invulnerability_trigger = true;
-                $("#background").css({"filter": "grayscale(100%) invert(100%)"});
+                $("#arkanoid-background").css({"filter": "grayscale(100%) invert(100%)"});
                 $("canvas").css({"filter": "grayscale(100%) invert(100%)"});
             }
             if (ball.invulnerability_duration === 0 && invulnerability_trigger)
             {
                 invulnerability_trigger = false;
-                $("#background").css({"filter": "none"});
+                $("#arkanoid-background").css({"filter": "none"});
                 $("canvas").css({"filter": "none"});
             }
 

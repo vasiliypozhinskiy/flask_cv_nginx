@@ -888,7 +888,7 @@ class GreyBrick extends Brick
             }
             else if (seed > 0.6)
             {
-                bonuses.push(new SpeedBonus(context, "hp", this.x, this.y + this.height / 2));
+                bonuses.push(new SpeedBonus(context, "speed", this.x, this.y + this.height / 2));
             }
             else if (seed > 0.4)
             {
@@ -896,7 +896,7 @@ class GreyBrick extends Brick
             }
             else if (seed > 0.2)
             {
-                bonuses.push(new HpBonus(context, "speed", this.x, this.y + this.height / 2));
+                bonuses.push(new HpBonus(context, "hp", this.x, this.y + this.height / 2));
             }
             else
             {
@@ -1025,6 +1025,8 @@ class Bonus
             && (this.x + this.radius > paddle.x) && (this.x - this.radius < paddle.x + paddle.width))
         {
             play_audio(this.paddle_item_up_sound);
+            console.log(this.type);
+            console.log(this.duration);
             switch (this.type) {
                 case "life":
                     lives += 1;
@@ -1065,6 +1067,8 @@ class Bonus
         {
             this.was_ball_collision = true;
             play_audio(this.ball_item_up_sound);
+            console.log(this.type);
+            console.log(this.duration);
             switch (this.type) {
                 case "life":
                     lives += 1;
@@ -1278,6 +1282,7 @@ class Barrel
         {
             if (!this.explode)
             {
+                this.create_score_obj();
                 play_audio(this.explode_sound);
             }
             this.speed = [0, 0];
@@ -1338,11 +1343,8 @@ class Barrel
 
     create_score_obj()
     {
-        if (this.y + this.height > config.CANVAS_HEIGHT)
-        {
-            game_score += this.score;
-            score_list.push(new Score_obj(this.context, this.score, this.x, this.y));
-        }
+        game_score += this.score;
+        score_list.push(new Score_obj(this.context, this.score, this.x, this.y));
     }
 }
 

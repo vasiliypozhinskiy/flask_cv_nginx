@@ -91,7 +91,7 @@ h2 {
     transition: color 0.2s linear;
 }
 
-@media (max-width: 575px) {
+@media screen and (max-width: 575px) {
     .nav-item {
         display: block;
     }
