@@ -8,12 +8,33 @@
           justify-content: space-around;
           }
 
+@media (max-width: 1023px) {
+    .content {
+        display: block;
+        width: 100%;
+    }
+}
+
 
 .left-content, .right-content {
                                padding: 15px;
                                }
 
 /* left-content*/
+.left-content img {
+    width: 400px;
+}
+
+@media (max-width: 1023px) {
+    .photo {
+        text-align: center;
+    }
+
+    .left-content img {
+        width: 80%;
+    }
+}
+
 .links {
         display: flex;
         flex-direction: column;
@@ -27,6 +48,12 @@
 .right-content {
                 text-align: justify !important;
                 }
+
+@media (max-width: 767px) {
+    .right-content {
+                text-align: left !important;
+                }
+}
 
 .text-link {
        font-size: 16px;

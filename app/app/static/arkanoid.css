@@ -66,24 +66,22 @@ td {
                   width: 100%;
                  }
 
+.small-width {
+    display:none;
+}
+
 .description {
               width: 100%;
               margin: 40px auto;
              }
 
-.items {
+.items, .monsters {
         border-color: grey;
         margin: 0 auto;
         width: 100%;
         }
 
-.monsters {
-           border-color: grey;
-           margin: 0 auto;
-           width: 100%;
-           }
-
-#background {
+#arkanoid-background {
             margin: 0;
             display: block;
             position: absolute;
@@ -95,6 +93,43 @@ td {
           position: relative;
           z-index: 10;
           }
+
+@media (max-width: 1000px) {
+    .content{
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .description {
+        width: 100%;
+    }
+}
+
+@media (max-width: 800px) {
+    .content{
+        width: 90%;
+    }
+    .arkanoid {
+        display: none;
+    }
+
+    .small-width {
+        display:block;
+    }
+
+    .description {
+        width: 100%;
+        margin: 0 auto;
+    }
+    td {
+        display: block;
+    }
+
+    th {
+        display: none;
+    }
+}
+
 
 
 

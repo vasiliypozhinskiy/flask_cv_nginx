@@ -25,9 +25,9 @@
     <a href="https://github.com/vasiliypozhinskiy/packing" target="_blank">Репозиторий проекта</a>
     <a href="{{ url_for('static', filename='files/packing.rar') }}">Архив с программой</a>
 
-    <img src="{{ url_for('static', filename='images/packing-1.jpg') }}" width="60%">
+    <img class="packing-img" src="{{ url_for('static', filename='images/packing-1.jpg') }}">
     <div class="description">Собранные вещи отмечаются зелёным цветом.</div>
-    <img src="{{ url_for('static', filename='images/packing-2.jpg') }}" width="60%">
+    <img class="packing-img" src="{{ url_for('static', filename='images/packing-2.jpg') }}">
     <div class="description">Окно добавления предметов блокирует открытие новых окон.</div>
 </div>
 {% endblock %}
