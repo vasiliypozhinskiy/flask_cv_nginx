@@ -1025,8 +1025,6 @@ class Bonus
             && (this.x + this.radius > paddle.x) && (this.x - this.radius < paddle.x + paddle.width))
         {
             play_audio(this.paddle_item_up_sound);
-            console.log(this.type);
-            console.log(this.duration);
             switch (this.type) {
                 case "life":
                     lives += 1;
@@ -1067,8 +1065,6 @@ class Bonus
         {
             this.was_ball_collision = true;
             play_audio(this.ball_item_up_sound);
-            console.log(this.type);
-            console.log(this.duration);
             switch (this.type) {
                 case "life":
                     lives += 1;
