@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block links %}
+    <link href="{{ url_for('static', filename='typing_trainer/css/app.a56782e0.css') }}" rel="preload" as="style">
+    <link href="{{ url_for('static', filename='typing_trainer/js/app.0ae6d88b.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='typing_trainer/js/chunk-vendors.05c83127.js') }}" rel="preload" as="script">
+    <link href="{{ url_for('static', filename='typing_trainer/css/app.a56782e0.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block title %}
+Typing trainer
+{% endblock %}
+
+{% block content %}
+    <noscript><strong>We're sorry but typing-trainer doesn't work properly without JavaScript enabled. Please enable it to
+        continue.</strong></noscript>
+    <div id="app"></div>
+    <script src="{{ url_for('static', filename='typing_trainer/js/chunk-vendors.05c83127.js') }}"></script>
+    <script src="{{ url_for('static', filename='typing_trainer/js/app.0ae6d88b.js') }}"></script>
+{% endblock %}
