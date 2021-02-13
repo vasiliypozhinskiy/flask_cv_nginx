@@ -2,24 +2,21 @@
 
 let config = get_config();
 
-function get_config()
-{
+function get_config() {
     let config;
     $.ajax({
         async: false,
         url: "/projects/get_config",
         type: "GET",
-        success: function(data){
-        config = data["config"];
+        success: function (data) {
+            config = data["config"];
         }
     });
     return config;
 }
 
-class Paddle
-{
-    constructor(context, x, y)
-    {
+class Paddle {
+    constructor(context, x, y) {
         this.x = x;
         this.y = y;
         this.width = config.PADDLE_WIDTH;
@@ -33,14 +30,11 @@ class Paddle
         this.mega_activated = false;
     }
 
-    draw()
-    {
-        if (this.invisibility_duration > 0)
-        {
+    draw() {
+        if (this.invisibility_duration > 0) {
             this.context.globalAlpha = 0.1;
         }
-        if (this.mega_activated && this.mega_duration <= 0)
-        {
+        if (this.mega_activated && this.mega_duration <= 0) {
             this.change_size(-100, -20)
             this.mega_activated = false;
         }
@@ -55,60 +49,46 @@ class Paddle
         this.context.globalAlpha = 1;
     }
 
-    change_size(width, height)
-    {
+    change_size(width, height) {
         this.width += width;
         this.height += height;
         this.x -= width / 2;
         this.y -= height / 2;
 
-        if (this.x + this.width > config.CANVAS_WIDTH - config.OFFSET_X)
-        {
+        if (this.x + this.width > config.CANVAS_WIDTH - config.OFFSET_X) {
             this.x = config.CANVAS_WIDTH - config.OFFSET_X - this.width;
         }
-        if (this.x < config.OFFSET_X)
-        {
+        if (this.x < config.OFFSET_X) {
             this.x = config.OFFSET_X;
         }
-        if (this.y + this.height > config.CANVAS_HEIGHT)
-        {
+        if (this.y + this.height > config.CANVAS_HEIGHT) {
             this.y = config.CANVAS_HEIGHT - config.OFFSET_Y - this.height;
         }
-        if (this.y < config.CANVAS_HEIGHT - config.PADDLE_ZONE)
-        {
+        if (this.y < config.CANVAS_HEIGHT - config.PADDLE_ZONE) {
             this.y = config.CANVAS_HEIGHT - config.PADDLE_ZONE;
         }
     }
 
-    move()
-    {
-        if (this.speed_duration > 0)
-        {
+    move() {
+        if (this.speed_duration > 0) {
             this.speed[0] *= 2;
             this.speed[1] *= 2;
         }
         if ((this.x + this.speed[0] + this.width <= config.CANVAS_WIDTH - config.OFFSET_X)
-        && (this.x + this.speed[0] >= config.OFFSET_X))
-            {
-                this.x += this.speed[0];
-            }
-            else
-            {
-                this.speed[0] = 0;
-            }
+            && (this.x + this.speed[0] >= config.OFFSET_X)) {
+            this.x += this.speed[0];
+        } else {
+            this.speed[0] = 0;
+        }
         if ((this.y + this.speed[1] + this.height <= config.CANVAS_HEIGHT - config.OFFSET_Y)
-        && (this.y + this.speed[1] >= config.CANVAS_HEIGHT - config.PADDLE_ZONE))
-            {
-                this.y += this.speed[1];
-            }
-            else
-            {
-                this.speed[1] = 0;
-            }
+            && (this.y + this.speed[1] >= config.CANVAS_HEIGHT - config.PADDLE_ZONE)) {
+            this.y += this.speed[1];
+        } else {
+            this.speed[1] = 0;
+        }
     }
 
-    reset()
-    {
+    reset() {
         this.invisibility_duration = 0;
         this.mega_duration = 0;
         this.speed_duration = 0;
@@ -116,26 +96,21 @@ class Paddle
         this.y = canvas.height - this.height - config.OFFSET_Y;
     }
 
-    decrease_bonus_duration()
-    {
-        if (this.invisibility_duration > 0)
-        {
+    decrease_bonus_duration() {
+        if (this.invisibility_duration > 0) {
             this.invisibility_duration -= 1;
         }
-        if (this.speed_duration > 0)
-        {
+        if (this.speed_duration > 0) {
             this.speed_duration -= 1;
         }
-        if (this.mega_duration > 0)
-        {
+        if (this.mega_duration > 0) {
             this.mega_duration -= 1;
         }
     }
 }
 
-class Ball
-{ constructor(context, x, y)
-    {
+class Ball {
+    constructor(context, x, y) {
         this.context = context;
         this.x = x;
         this.y = y;
@@ -201,230 +176,190 @@ class Ball
         this.injured_sound = "/static/sound/injured.wav";
     }
 
- draw()
- {
-    if (this.invisibility_duration > 0)
-    {
-        this.context.globalAlpha = 0.2;
-    }
-    if (this.mega_activated && this.mega_duration <= 0)
-    {
-        this.mega_activated = false;
-        this.damage = config.BALL_DAMAGE;
-        this.change_size()
-    }
-    if (this.fall || this.animation)
-    {
-        this.frame_count += 1;
-    }
-
-    if (this.acceleration[0] > 0)
-    {
-        if (!this.injured)
-        {
-            this.context.drawImage(this.imageRight, this.x - this.radius, this.y - this.radius);
+    draw() {
+        if (this.invisibility_duration > 0) {
+            this.context.globalAlpha = 0.2;
         }
-        else
-        {
-            this.context.drawImage(this.imageRightInjured, this.x - this.radius, this.y - this.radius);
+        if (this.mega_activated && this.mega_duration <= 0) {
+            this.mega_activated = false;
+            this.damage = config.BALL_DAMAGE;
+            this.change_size()
         }
-        this.context.globalAlpha = 1;
-        return;
-    }
-
-    if (this.acceleration[0] < 0)
-    {
-        if (!this.injured)
-        {
-            this.context.drawImage(this.imageLeft, this.x - this.radius, this.y - this.radius);
+        if (this.fall || this.animation) {
+            this.frame_count += 1;
         }
-        else
-        {
-            this.context.drawImage(this.imageLeftInjured, this.x - this.radius, this.y - this.radius);
+
+        if (this.acceleration[0] > 0) {
+            if (!this.injured) {
+                this.context.drawImage(this.imageRight, this.x - this.radius, this.y - this.radius);
+            } else {
+                this.context.drawImage(this.imageRightInjured, this.x - this.radius, this.y - this.radius);
+            }
+            this.context.globalAlpha = 1;
+            return;
         }
-        this.context.globalAlpha = 1;
-        return;
-    }
 
-    if (this.frame_count === 0)
-    {
-        this.context.drawImage(this.image, this.x - this.radius, this.y - this.radius);
-        this.context.globalAlpha = 1;
-        return;
-    }
+        if (this.acceleration[0] < 0) {
+            if (!this.injured) {
+                this.context.drawImage(this.imageLeft, this.x - this.radius, this.y - this.radius);
+            } else {
+                this.context.drawImage(this.imageLeftInjured, this.x - this.radius, this.y - this.radius);
+            }
+            this.context.globalAlpha = 1;
+            return;
+        }
 
-    if (this.animation && this.frame_count <= 10)
-    {
-        this.context.drawImage(this.animation1, this.x - this.radius, this.y - this.radius);
-        this.context.globalAlpha = 1;
-        return;
-    }
+        if (this.frame_count === 0) {
+            this.context.drawImage(this.image, this.x - this.radius, this.y - this.radius);
+            this.context.globalAlpha = 1;
+            return;
+        }
 
-    if (this.animation && this.frame_count <= 20)
-    {
-        this.context.drawImage(this.animation2, this.x - this.radius, this.y - this.radius);
-        this.context.globalAlpha = 1;
-        return;
-    }
+        if (this.animation && this.frame_count <= 10) {
+            this.context.drawImage(this.animation1, this.x - this.radius, this.y - this.radius);
+            this.context.globalAlpha = 1;
+            return;
+        }
 
-    if (this.animation && this.frame_count <= 30)
-    {
-        this.context.drawImage(this.animation3, this.x - this.radius, this.y - this.radius);
-        this.context.globalAlpha = 1;
-        return;
-    }
+        if (this.animation && this.frame_count <= 20) {
+            this.context.drawImage(this.animation2, this.x - this.radius, this.y - this.radius);
+            this.context.globalAlpha = 1;
+            return;
+        }
 
-    if (this.animation && this.frame_count <= 40)
-    {
-        this.context.drawImage(this.animation2, this.x - this.radius, this.y - this.radius);
-        this.context.globalAlpha = 1;
-        return;
-    }
-    if (this.animation && this.frame_count <= 50)
-    {
-        this.context.drawImage(this.animation1, this.x - this.radius, this.y - this.radius);
-        this.context.globalAlpha = 1;
-        return;
-    }
+        if (this.animation && this.frame_count <= 30) {
+            this.context.drawImage(this.animation3, this.x - this.radius, this.y - this.radius);
+            this.context.globalAlpha = 1;
+            return;
+        }
 
-    if (this.fall && this.frame_count <= 60)
-    {
-        this.context.drawImage(this.death1, this.x - this.radius, config.CANVAS_HEIGHT - this.death1.height);
-        this.context.globalAlpha = 1;
-        return;
-    }
-    if (this.fall && this.frame_count <= 70)
-    {
-        this.context.drawImage(this.death2, this.x - this.radius, config.CANVAS_HEIGHT - this.death2.height);
-        this.context.globalAlpha = 1;
-        return;
-    }
-    if (this.fall && this.frame_count <= 80)
-    {
-        this.context.drawImage(this.death3, this.x - this.radius, config.CANVAS_HEIGHT - this.death3.height);
-        this.context.globalAlpha = 1;
-        return;
-    }
-    if (this.fall && this.frame_count <= 90)
-    {
-        this.context.drawImage(this.death4, this.x - this.radius, config.CANVAS_HEIGHT - this.death4.height);
-        this.context.globalAlpha = 1;
-        return;
-    }
-    if (this.fall && this.frame_count <= 100)
-    {
-        this.context.drawImage(this.death5, this.x - this.radius, config.CANVAS_HEIGHT - this.death5.height);
-        this.context.globalAlpha = 1;
-        return;
-    }
-    if (this.fall && this.frame_count <= 110)
-    {
-        this.context.drawImage(this.death6, this.x - this.radius, config.CANVAS_HEIGHT - this.death6.height);
-        this.context.globalAlpha = 1;
-    }
- }
+        if (this.animation && this.frame_count <= 40) {
+            this.context.drawImage(this.animation2, this.x - this.radius, this.y - this.radius);
+            this.context.globalAlpha = 1;
+            return;
+        }
+        if (this.animation && this.frame_count <= 50) {
+            this.context.drawImage(this.animation1, this.x - this.radius, this.y - this.radius);
+            this.context.globalAlpha = 1;
+            return;
+        }
 
- random_animation()
- {
-    if (!this.animation)
-    {
-        let seed = Math.random();
-        if (seed < 0.001)
-        {
-            this.animation = true;
-            play_audio(this.attack_sound);
+        if (this.fall && this.frame_count <= 60) {
+            this.context.drawImage(this.death1, this.x - this.radius, config.CANVAS_HEIGHT - this.death1.height);
+            this.context.globalAlpha = 1;
+            return;
+        }
+        if (this.fall && this.frame_count <= 70) {
+            this.context.drawImage(this.death2, this.x - this.radius, config.CANVAS_HEIGHT - this.death2.height);
+            this.context.globalAlpha = 1;
+            return;
+        }
+        if (this.fall && this.frame_count <= 80) {
+            this.context.drawImage(this.death3, this.x - this.radius, config.CANVAS_HEIGHT - this.death3.height);
+            this.context.globalAlpha = 1;
+            return;
+        }
+        if (this.fall && this.frame_count <= 90) {
+            this.context.drawImage(this.death4, this.x - this.radius, config.CANVAS_HEIGHT - this.death4.height);
+            this.context.globalAlpha = 1;
+            return;
+        }
+        if (this.fall && this.frame_count <= 100) {
+            this.context.drawImage(this.death5, this.x - this.radius, config.CANVAS_HEIGHT - this.death5.height);
+            this.context.globalAlpha = 1;
+            return;
+        }
+        if (this.fall && this.frame_count <= 110) {
+            this.context.drawImage(this.death6, this.x - this.radius, config.CANVAS_HEIGHT - this.death6.height);
+            this.context.globalAlpha = 1;
         }
     }
-    else
-    {
-        if (this.frame_count === 50)
-        {
-            this.animation = false;
-            this.frame_count = 0;
+
+    random_animation() {
+        if (!this.animation) {
+            let seed = Math.random();
+            if (seed < 0.001) {
+                this.animation = true;
+                play_audio(this.attack_sound);
+            }
+        } else {
+            if (this.frame_count === 50) {
+                this.animation = false;
+                this.frame_count = 0;
+            }
         }
     }
- }
 
- change_size()
- {
-    if (this.mega_activated)
-    {
-        this.radius = 33;
-        this.image.src = "/static/images/arkanoid/bigBall.png";
+    change_size() {
+        if (this.mega_activated) {
+            this.radius = 33;
+            this.image.src = "/static/images/arkanoid/bigBall.png";
 
-        this.animation1.src = "/static/images/arkanoid/bigBall_animation1.png";
-        this.animation2.src = "/static/images/arkanoid/bigBall_animation2.png";
-        this.animation3.src = "/static/images/arkanoid/bigBall_animation3.png";
+            this.animation1.src = "/static/images/arkanoid/bigBall_animation1.png";
+            this.animation2.src = "/static/images/arkanoid/bigBall_animation2.png";
+            this.animation3.src = "/static/images/arkanoid/bigBall_animation3.png";
 
-        this.imageLeft.src = "/static/images/arkanoid/bigBallLeft.png";
-        this.imageRight.src = "/static/images/arkanoid/bigBallRight.png";
-        this.imageLeftInjured.src = "/static/images/arkanoid/bigBallLeftHitted.png";
-        this.imageRightInjured.src = "/static/images/arkanoid/bigBallRightHitted.png";
+            this.imageLeft.src = "/static/images/arkanoid/bigBallLeft.png";
+            this.imageRight.src = "/static/images/arkanoid/bigBallRight.png";
+            this.imageLeftInjured.src = "/static/images/arkanoid/bigBallLeftHitted.png";
+            this.imageRightInjured.src = "/static/images/arkanoid/bigBallRightHitted.png";
 
-        this.death1.src = "/static/images/arkanoid/bigBall_fall1.png";
-        this.death2.src = "/static/images/arkanoid/bigBall_fall2.png";
-        this.death2.src = "/static/images/arkanoid/bigBall_fall2.png";
-        this.death3.src = "/static/images/arkanoid/bigBall_fall3.png";
-        this.death4.src = "/static/images/arkanoid/bigBall_fall4.png";
-        this.death5.src = "/static/images/arkanoid/bigBall_fall5.png";
-        this.death6.src = "/static/images/arkanoid/bigBall_fall6.png";
+            this.death1.src = "/static/images/arkanoid/bigBall_fall1.png";
+            this.death2.src = "/static/images/arkanoid/bigBall_fall2.png";
+            this.death2.src = "/static/images/arkanoid/bigBall_fall2.png";
+            this.death3.src = "/static/images/arkanoid/bigBall_fall3.png";
+            this.death4.src = "/static/images/arkanoid/bigBall_fall4.png";
+            this.death5.src = "/static/images/arkanoid/bigBall_fall5.png";
+            this.death6.src = "/static/images/arkanoid/bigBall_fall6.png";
+        } else {
+            this.radius = config.BALL_RADIUS;
+            this.image.src = "/static/images/arkanoid/ball.png";
+
+            this.animation1.src = "/static/images/arkanoid/ball_animation1.png";
+            this.animation2.src = "/static/images/arkanoid/ball_animation2.png";
+            this.animation3.src = "/static/images/arkanoid/ball_animation3.png";
+
+            this.imageLeft.src = "/static/images/arkanoid/ballLeft.png";
+            this.imageRight.src = "/static/images/arkanoid/ballRight.png";
+            this.imageLeftInjured.src = "/static/images/arkanoid/ballLeftHitted.png";
+            this.imageRightInjured.src = "/static/images/arkanoid/ballRightHitted.png";
+
+            this.death1.src = "/static/images/arkanoid/ball_fall1.png";
+            this.death2.src = "/static/images/arkanoid/ball_fall2.png";
+            this.death2.src = "/static/images/arkanoid/ball_fall2.png";
+            this.death3.src = "/static/images/arkanoid/ball_fall3.png";
+            this.death4.src = "/static/images/arkanoid/ball_fall4.png";
+            this.death5.src = "/static/images/arkanoid/ball_fall5.png";
+            this.death6.src = "/static/images/arkanoid/ball_fall6.png";
+        }
     }
-    else
-    {
-        this.radius = config.BALL_RADIUS;
-        this.image.src = "/static/images/arkanoid/ball.png";
 
-        this.animation1.src = "/static/images/arkanoid/ball_animation1.png";
-        this.animation2.src = "/static/images/arkanoid/ball_animation2.png";
-        this.animation3.src = "/static/images/arkanoid/ball_animation3.png";
-
-        this.imageLeft.src = "/static/images/arkanoid/ballLeft.png";
-        this.imageRight.src = "/static/images/arkanoid/ballRight.png";
-        this.imageLeftInjured.src = "/static/images/arkanoid/ballLeftHitted.png";
-        this.imageRightInjured.src = "/static/images/arkanoid/ballRightHitted.png";
-
-        this.death1.src = "/static/images/arkanoid/ball_fall1.png";
-        this.death2.src = "/static/images/arkanoid/ball_fall2.png";
-        this.death2.src = "/static/images/arkanoid/ball_fall2.png";
-        this.death3.src = "/static/images/arkanoid/ball_fall3.png";
-        this.death4.src = "/static/images/arkanoid/ball_fall4.png";
-        this.death5.src = "/static/images/arkanoid/ball_fall5.png";
-        this.death6.src = "/static/images/arkanoid/ball_fall6.png";
-    }
- }
-
- wallCollision()
- {
-    if (this.x + this.radius > config.CANVAS_WIDTH)
-        {
+    wallCollision() {
+        if (this.x + this.radius > config.CANVAS_WIDTH) {
             this.speed[0] = -Math.abs(this.speed[0]);
             this.x = config.CANVAS_WIDTH - this.radius;
             this.acceleration[0] = -this.acceleration[0];
             play_audio(this.hit_sound);
         }
 
-    if (this.x - this.radius < 0)
-        {
+        if (this.x - this.radius < 0) {
             this.speed[0] = Math.abs(this.speed[0]);
             this.x = this.radius;
             this.acceleration[0] = -this.acceleration[0];
             play_audio(this.hit_sound);
         }
 
-    if (this.y - this.radius < 0)
-        {
+        if (this.y - this.radius < 0) {
             this.speed[1] = Math.abs(this.speed[1]);
             this.y = this.radius;
             this.acceleration[1] = -this.acceleration[1];
             play_audio(this.hit_sound);
         }
-    if ((this.y + this.radius >= config.CANVAS_HEIGHT)
-       || (this.x + this.radius < 0)
-       || (this.x - this.radius > config.CANVAS_WIDTH)
-       || (this.y + this.radius < 0))
-        {
-            if (!this.fall)
-            {
+        if ((this.y + this.radius >= config.CANVAS_HEIGHT)
+            || (this.x + this.radius < 0)
+            || (this.x - this.radius > config.CANVAS_WIDTH)
+            || (this.y + this.radius < 0)) {
+            if (!this.fall) {
                 this.speed = [0, 0];
                 this.acceleration[0] = 0;
                 this.fall = true;
@@ -432,32 +367,27 @@ class Ball
                 play_audio(this.fall_sound);
                 lives -= 1;
             }
-            if (this.frame_count > 100)
-            {
+            if (this.frame_count > 100) {
                 this.reset();
             }
         }
- }
+    }
 
- paddleCollision()
- {
-    if ((!this.fall) && (this.y + this.radius > paddle.y) && (this.y - this.radius < paddle.y + paddle.height)
-       && (this.x + this.radius > paddle.x) && (this.x - this.radius < paddle.x + paddle.width))
-       {
+    paddleCollision() {
+        if ((!this.fall) && (this.y + this.radius > paddle.y) && (this.y - this.radius < paddle.y + paddle.height)
+            && (this.x + this.radius > paddle.x) && (this.x - this.radius < paddle.x + paddle.width)) {
             play_audio(this.hit_sound);
             //hit top
-            if ((this.x + this.radius > paddle.x) && (this.x - this.radius < paddle.x + paddle.width) && (this.y < paddle.y))
-            {
+            if ((this.x + this.radius > paddle.x) && (this.x - this.radius < paddle.x + paddle.width) && (this.y < paddle.y)) {
                 let collidePoint = this.x - (paddle.x + paddle.width / 2);
                 collidePoint = collidePoint / (paddle.width / 2);
-                let angle = collidePoint *  (Math.PI / 6);
+                let angle = collidePoint * (Math.PI / 6);
 
                 this.speed[0] = this.start_speed * Math.sin(angle);
                 this.speed[1] = -this.start_speed * Math.cos(angle);
                 this.acceleration[0] += paddle.speed[0];
                 this.acceleration[1] = -this.acceleration[1];
-                if (paddle.speed[1] < 0)
-                {
+                if (paddle.speed[1] < 0) {
                     this.acceleration[1] += paddle.speed[1] * 2;
                 }
                 this.y = paddle.y - this.radius;
@@ -465,64 +395,50 @@ class Ball
             }
 
             //hit left
-            if (this.x < paddle.x)
-            {
-                this.speed[0] = - Math.abs(this.speed[0]);
+            if (this.x < paddle.x) {
+                this.speed[0] = -Math.abs(this.speed[0]);
                 this.acceleration[0] = -this.acceleration[0];
                 this.x = paddle.x - this.radius;
                 return;
             }
             //hit right
-            if  (this.x > paddle.x + paddle.width)
-            {
+            if (this.x > paddle.x + paddle.width) {
                 this.speed[0] = Math.abs(this.speed[0]);
                 this.acceleration[0] = -this.acceleration[0];
                 this.x = paddle.x + paddle.width + this.radius;
                 return;
             }
             //hit bottom
-            if ((this.x + this.radius > paddle.x) && (this.x - this.radius < paddle.x + paddle.width) && (this.y > paddle.y))
-            {
-                this.speed[1] = - this.speed[1];
+            if ((this.x + this.radius > paddle.x) && (this.x - this.radius < paddle.x + paddle.width) && (this.y > paddle.y)) {
+                this.speed[1] = -this.speed[1];
                 this.acceleration[1] = -this.acceleration[1];
                 this.y = paddle.y + paddle.height + this.radius;
             }
-       }
- }
+        }
+    }
 
- brickCollision(brick)
- {
-    if ((this.y + this.radius > brick.y) && (this.y - this.radius < brick.y + brick.height)
-       && (this.x + this.radius > brick.x) && (this.x - this.radius < brick.x + brick.width))
-        {
+    brickCollision(brick) {
+        if ((this.y + this.radius > brick.y) && (this.y - this.radius < brick.y + brick.height)
+            && (this.x + this.radius > brick.x) && (this.x - this.radius < brick.x + brick.width)) {
             brick.collision(this.damage);
             play_audio(this.hit_sound);
 
-            if ((this.x + this.radius - this.speed[0] <= brick.x) || (this.x - this.radius - this.speed[0] >= brick.x + brick.width))
-            {
+            if ((this.x + this.radius - this.speed[0] <= brick.x) || (this.x - this.radius - this.speed[0] >= brick.x + brick.width)) {
 
-                if (this.x < brick.x + brick.width / 2)
-                {
+                if (this.x < brick.x + brick.width / 2) {
                     this.speed[0] = -Math.abs(this.speed[0]);
                     this.acceleration[0] = -this.acceleration[0];
-                }
-                else
-                {
+                } else {
                     this.speed[0] = Math.abs(this.speed[0]);
                     this.acceleration[0] = -this.acceleration[0];
                 }
                 this.x += this.speed[0] - brick.speed[0];
                 this.y -= this.speed[1] + brick.speed[1];
-            }
-            else
-            {
-                if (this.y < brick.y + brick.height / 2)
-                {
+            } else {
+                if (this.y < brick.y + brick.height / 2) {
                     this.speed[1] = -Math.abs(this.speed[1]);
                     this.acceleration[1] = -this.acceleration[1];
-                }
-                else
-                {
+                } else {
                     this.speed[1] = Math.abs(this.speed[1]);
                     this.acceleration[1] = -this.acceleration[1];
                 }
@@ -531,160 +447,126 @@ class Ball
             }
         }
 
- }
+    }
 
- move()
- {
-    if ((this.falling || Math.abs(this.speed[1]) < 2) && !this.onPaddle)
-    {
-        this.x += this.speed[0] + this.acceleration[0];
-        this.speed[1] += config.FALLING_SPEED * 5;
-        this.y += this.speed[1] + this.acceleration[1];
-        return;
-    }
-    if (this.onPaddle)
-    {
-        this.x = paddle.x + paddle.width / 2;
-        this.y = paddle.y - this.radius;
-    }
-    else
-    {
-        this.x += this.speed[0] + this.acceleration[0];
-        this.y += this.speed[1] + this.acceleration[1];
-        if (this.speed_duration > 0)
-        {
-            this.x += this.speed[0];
-            this.y += this.speed[1];
+    move() {
+        if ((this.falling || Math.abs(this.speed[1]) < 2) && !this.onPaddle) {
+            this.x += this.speed[0] + this.acceleration[0];
+            this.speed[1] += config.FALLING_SPEED * 5;
+            this.y += this.speed[1] + this.acceleration[1];
+            return;
         }
+        if (this.onPaddle) {
+            this.x = paddle.x + paddle.width / 2;
+            this.y = paddle.y - this.radius;
+        } else {
+            this.x += this.speed[0] + this.acceleration[0];
+            this.y += this.speed[1] + this.acceleration[1];
+            if (this.speed_duration > 0) {
+                this.x += this.speed[0];
+                this.y += this.speed[1];
+            }
 
+        }
     }
- }
 
- change_acceleration(acceleration)
- {
-    if (this.mega_duration === 0)
-    {
-        this.acceleration[0] += acceleration[0];
-        this.acceleration[1] += acceleration[1];
+    change_acceleration(acceleration) {
+        if (this.mega_duration === 0) {
+            this.acceleration[0] += acceleration[0];
+            this.acceleration[1] += acceleration[1];
+        } else {
+            this.acceleration[0] += acceleration[0] / 2;
+            this.acceleration[1] += acceleration[1] / 2;
+        }
     }
-    else
-    {
-        this.acceleration[0] += acceleration[0] / 2;
-        this.acceleration[1] += acceleration[1] / 2;
-    }
- }
 
- friction()
- {
-    let shift = config.FRICTION
-    if (this.acceleration[0] > shift)
-    {
-        this.acceleration[0] -= shift;
+    friction() {
+        let shift = config.FRICTION
+        if (this.acceleration[0] > shift) {
+            this.acceleration[0] -= shift;
+        }
+        if (this.acceleration[0] < -shift) {
+            this.acceleration[0] += shift;
+        }
+        if (this.acceleration[0] < shift && this.acceleration[0] > -shift) {
+            this.acceleration[0] = 0;
+            this.injured = false;
+        }
+        if (this.acceleration[1] > shift) {
+            this.acceleration[1] -= shift;
+        }
+        if (this.acceleration[1] < -shift) {
+            this.acceleration[1] += shift;
+        }
+        if (this.acceleration[1] < shift && this.acceleration[1] > -shift) {
+            this.acceleration[1] = 0;
+        }
     }
-    if (this.acceleration[0] < -shift)
-    {
-        this.acceleration[0] += shift;
-    }
-    if (this.acceleration[0] < shift && this.acceleration[0] > -shift)
-    {
-        this.acceleration[0] = 0;
-        this.injured = false;
-    }
-    if (this.acceleration[1] > shift)
-    {
-        this.acceleration[1] -= shift;
-    }
-    if (this.acceleration[1] < -shift)
-    {
-        this.acceleration[1] += shift;
-    }
-    if (this.acceleration[1] < shift && this.acceleration[1] > -shift)
-    {
-        this.acceleration[1] = 0;
-    }
- }
 
- change_hp(hp)
- {
-    if (hp > 0)
-    {
-        this.hp += hp;
+    change_hp(hp) {
+        if (hp > 0) {
+            this.hp += hp;
+        } else if (this.invulnerability_duration === 0 && this.hp > 0) {
+            this.hp += hp;
+            play_audio(this.injured_sound);
+        }
+        if (this.hp <= 0) {
+            this.falling = true;
+        }
     }
-    else if (this.invulnerability_duration === 0 && this.hp > 0)
-    {
-        this.hp += hp;
-        play_audio(this.injured_sound);
-    }
-    if (this.hp <= 0)
-    {
-        this.falling = true;
-    }
- }
 
- decrease_bonus_duration()
- {
-        if (this.mega_duration > 0)
-        {
+    decrease_bonus_duration() {
+        if (this.mega_duration > 0) {
             this.mega_duration -= 1;
         }
-        if (this.speed_duration > 0)
-        {
+        if (this.speed_duration > 0) {
             this.speed_duration -= 1;
         }
-        if (this.invulnerability_duration > 0)
-        {
+        if (this.invulnerability_duration > 0) {
             this.invulnerability_duration -= 1;
         }
-        if (this.invisibility_duration > 0)
-        {
+        if (this.invisibility_duration > 0) {
             this.invisibility_duration -= 1;
         }
- }
-
- start()
- {
-    if (this.onPaddle)
-    {
-        play_audio(this.start_sound);
-
-        let seed = Math.floor(30 + Math.random() * 120);
-        let angle = seed * Math.PI / 180;
-
-        this.speed[0] = this.start_speed * Math.cos(angle);
-        this.speed[1] = -this.start_speed * Math.sin(angle);
-        this.acceleration = [0, 0];
-        this.onPaddle = false;
     }
- }
 
- reset()
- {
-    if (this.fall)
-    {
-        this.hp = config.BALL_HP;
+    start() {
+        if (this.onPaddle) {
+            play_audio(this.start_sound);
+
+            let seed = Math.floor(30 + Math.random() * 120);
+            let angle = seed * Math.PI / 180;
+
+            this.speed[0] = this.start_speed * Math.cos(angle);
+            this.speed[1] = -this.start_speed * Math.sin(angle);
+            this.acceleration = [0, 0];
+            this.onPaddle = false;
+        }
     }
-    if (this.hp === 0)
-    {
-        this.hp = 1;
+
+    reset() {
+        if (this.fall) {
+            this.hp = config.BALL_HP;
+        }
+        if (this.hp === 0) {
+            this.hp = 1;
+        }
+        this.onPaddle = true;
+        this.fall = false;
+        this.falling = false;
+        this.x = paddle.x + paddle.width / 2;
+        this.y = paddle.y - this.radius;
+        this.frame_count = 0;
+        this.invisibility_duration = 0;
+        this.mega_duration = 0;
+        this.speed_duration = 0;
+        this.invulnerability_duration = 0;
     }
-    this.onPaddle = true;
-    this.fall = false;
-    this.falling = false;
-    this.x = paddle.x + paddle.width / 2;
-    this.y = paddle.y - this.radius;
-    this.frame_count = 0;
-    this.invisibility_duration = 0;
-    this.mega_duration = 0;
-    this.speed_duration = 0;
-    this.invulnerability_duration = 0;
- }
 
 }
 
-class Brick
-{
-    constructor (context, type, x, y)
-    {
+class Brick {
+    constructor(context, type, x, y) {
         this.x = x;
         this.y = y;
         this.width = 80;
@@ -706,11 +588,10 @@ class Brick
         this.clip_line2_1 = [this.x, Math.floor(Math.random() * this.height + this.y)];
         this.clip_line2_2 = [this.x + this.width, Math.floor(Math.random() * this.height + this.y)];
         this.intersection = this.findIntersectionPoint(this.clip_line1_1[0], this.clip_line1_2[0], this.clip_line1_1[1], this.clip_line1_2[1],
-        this.clip_line2_1[0], this.clip_line2_2[0], this.clip_line2_1[1], this.clip_line2_1[1]);
+            this.clip_line2_1[0], this.clip_line2_2[0], this.clip_line2_1[1], this.clip_line2_1[1]);
     }
 
-    draw()
-    {
+    draw() {
         this.context.drawImage(this.image, this.x, this.y);
         this.context.strokeStyle = "black";
         this.context.lineWidth = 3;
@@ -718,74 +599,60 @@ class Brick
         this.context.rect(this.x, this.y, this.width, this.height);
         this.context.stroke();
         this.context.closePath();
-        if (this.hp > 20)
-        {
+        if (this.hp > 20) {
             this.context.lineWidth = 1;
         }
-        if (this.hp < 40)
-        {
-            if (this.seed > 0.5)
-            {
+        if (this.hp < 40) {
+            if (this.seed > 0.5) {
                 this.context.beginPath();
                 this.context.moveTo(this.x, this.y);
                 this.context.lineTo(this.intersection[0], this.intersection[1]);
-                this.context.lineTo(this.x + this.width,  this.y + this.height);
+                this.context.lineTo(this.x + this.width, this.y + this.height);
                 this.context.stroke();
-            }
-            else
-            {
+            } else {
                 this.context.beginPath();
                 this.context.moveTo(this.x + this.width, this.y);
                 this.context.lineTo(this.intersection[0], this.intersection[1]);
-                this.context.lineTo(this.x,  this.y + this.height);
+                this.context.lineTo(this.x, this.y + this.height);
                 this.context.stroke();
             }
         }
-        if (this.hp < 20)
-        {
-            if (this.seed > 0.5)
-            {
+        if (this.hp < 20) {
+            if (this.seed > 0.5) {
                 this.context.beginPath();
                 this.context.moveTo(this.x + this.width, this.y);
                 this.context.lineTo(this.intersection[0], this.intersection[1]);
-                this.context.lineTo(this.x,  this.y + this.height);
+                this.context.lineTo(this.x, this.y + this.height);
                 this.context.stroke();
-            }
-            else
-            {
+            } else {
                 this.context.beginPath();
                 this.context.moveTo(this.x, this.y);
                 this.context.lineTo(this.intersection[0], this.intersection[1]);
-                this.context.lineTo(this.x + this.width,  this.y + this.height);
+                this.context.lineTo(this.x + this.width, this.y + this.height);
                 this.context.stroke();
             }
         }
     }
 
-    collision(damage)
-    {
-    this.hp -= damage;
-    if (this.hp <= 0)
-        {
+    collision(damage) {
+        this.hp -= damage;
+        if (this.hp <= 0) {
             this.type = "for_delete";
             play_audio(this.break_sound);
             this.create_debris();
         }
     }
 
-    create_score_obj(score_list)
-    {
+    create_score_obj(score_list) {
         game_score += this.score;
         score_list.push(new Score_obj(this.context, this.score, this.x + this.width / 2, this.y + this.height / 2));
     }
 
-    create_debris()
-    {
+    create_debris() {
         debris_list.push(new Debris(this.context, this.image.src, this.x, this.y, this.intersection));
     }
 
-    findIntersectionPoint(X11, X12, Y11, Y12, X21, X22, Y21, Y22)
-    {
+    findIntersectionPoint(X11, X12, Y11, Y12, X21, X22, Y21, Y22) {
         let a1 = Y11 - Y12;
         let b1 = X12 - X11;
         let a2 = Y21 - Y22;
@@ -802,41 +669,35 @@ class Brick
         return [xi, yi];
     }
 
-    move()
-    {
+    move() {
         this.x += this.speed[0];
         this.y += this.speed[1];
     }
 }
 
-class DefaultBrick extends Brick
-{
-    constructor(context, type, x, y)
-    {
+class DefaultBrick extends Brick {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.hp = 20;
         this.score = 10;
     }
 
-    draw()
-    {
+    draw() {
         this.context.drawImage(this.image, this.x, this.y);
         this.context.strokeStyle = "black";
         this.context.lineWidth = 3;
-        if (this.hp < 20 && this.seed > 0.5)
-        {
+        if (this.hp < 20 && this.seed > 0.5) {
             this.context.beginPath();
             this.context.moveTo(this.x, this.y);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
-            this.context.lineTo(this.x + this.width,  this.y + this.height);
+            this.context.lineTo(this.x + this.width, this.y + this.height);
             this.context.stroke();
         }
-        if (this.hp < 20 && this.seed <= 0.5)
-        {
+        if (this.hp < 20 && this.seed <= 0.5) {
             this.context.beginPath();
             this.context.moveTo(this.x + this.width, this.y);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
-            this.context.lineTo(this.x,  this.y + this.height);
+            this.context.lineTo(this.x, this.y + this.height);
             this.context.stroke();
         }
         this.context.beginPath();
@@ -846,88 +707,65 @@ class DefaultBrick extends Brick
     }
 }
 
-class BrownBrick extends Brick
-{
-    constructor(context, type, x, y)
-    {
+class BrownBrick extends Brick {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.hp = 40;
         this.score = 20;
     }
 }
 
-class GreyBrick extends Brick
-{
-    constructor(context, type, x, y)
-    {
+class GreyBrick extends Brick {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.hp = 40;
         this.score = 20;
     }
 
-    collision(damage)
-    {
-    this.hp -= damage;
-    if (this.hp <= 0)
-        {
+    collision(damage) {
+        this.hp -= damage;
+        if (this.hp <= 0) {
             this.type = "for_delete";
             play_audio(this.break_sound);
             this.create_debris();
             let seed = Math.random();
-            if (seed > 0.95)
-            {
+            if (seed > 0.95) {
                 bonuses.push(new LifeBonus(context, "life", this.x, this.y + this.height / 2));
-            }
-            else if (seed > 0.8)
-            {
+            } else if (seed > 0.8) {
                 bonuses.push(new InvisibilityBonus(context, "invisibility", this.x, this.y + this.height / 2));
-            }
-            else if (seed > 0.7)
-            {
+            } else if (seed > 0.7) {
                 bonuses.push(new MegaBonus(context, "mega", this.x, this.y + this.height / 2));
-            }
-            else if (seed > 0.6)
-            {
+            } else if (seed > 0.6) {
                 bonuses.push(new SpeedBonus(context, "speed", this.x, this.y + this.height / 2));
-            }
-            else if (seed > 0.4)
-            {
+            } else if (seed > 0.4) {
                 bonuses.push(new InvulnerabilityBonus(context, "invulnerability", this.x, this.y + this.height / 2));
-            }
-            else if (seed > 0.2)
-            {
+            } else if (seed > 0.2) {
                 bonuses.push(new HpBonus(context, "hp", this.x, this.y + this.height / 2));
-            }
-            else
-            {
+            } else {
                 bonuses.push(new Barrel(context, "barrel", this.x, this.y + this.height / 2));
             }
         }
     }
 }
 
-class InvulnerableBrick extends Brick
-{
-    constructor(context, type, x, y)
-    {
+class InvulnerableBrick extends Brick {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.width = 128;
         this.height = 38;
     }
-    collision()
-    {
+
+    collision() {
         let vector = [ball.x - (this.x + this.width / 2), ball.y - (this.y + this.height / 2)];
         let length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
         ball.change_acceleration([vector[0] / length * 5, vector[1] / length * 5]);
     }
 
-    draw()
-    {
+    draw() {
         this.context.drawImage(this.image, this.x, this.y);
     }
 
-    move()
-    {
+    move() {
         let oldX = this.x;
         let oldY = this.y;
         this.x = cyberdemon.x - cyberdemon.width / 2 + 20;
@@ -936,10 +774,8 @@ class InvulnerableBrick extends Brick
     }
 }
 
-class Bonus
-{
-    constructor(context, type, x, y)
-    {
+class Bonus {
+    constructor(context, type, x, y) {
         this.context = context;
         this.type = type;
         this.x = x + 40;
@@ -966,64 +802,49 @@ class Bonus
         this.paddle_item_up_sound = "/static/sound/itemup.wav";
     }
 
-    draw()
-    {
-        if (this.frame_count < 40)
-        {
-            this.frame_count ++;
-        }
-        else
-        {
+    draw() {
+        if (this.frame_count < 40) {
+            this.frame_count++;
+        } else {
             this.frame_count = 0;
         }
-        if (this.frame_count <= 10)
-        {
+        if (this.frame_count <= 10) {
             this.context.drawImage(this.animation1, this.x - this.radius, this.y - this.radius);
             return;
         }
 
-        if (this.frame_count <= 20)
-        {
+        if (this.frame_count <= 20) {
             this.context.drawImage(this.animation2, this.x - this.radius, this.y - this.radius);
             return;
         }
 
-        if (this.frame_count <= 30)
-        {
+        if (this.frame_count <= 30) {
             this.context.drawImage(this.animation3, this.x - this.radius, this.y - this.radius);
             return;
         }
 
-        if (this.frame_count <= 40)
-        {
+        if (this.frame_count <= 40) {
             this.context.drawImage(this.animation2, this.x - this.radius, this.y - this.radius);
         }
     }
 
-    move()
-    {
-        if (!this.onBrick)
-        {
+    move() {
+        if (!this.onBrick) {
             this.y += this.speed[1];
             this.speed[1] += config.FALLING_SPEED;
-        }
-        else
-        {
+        } else {
             this.x += this.speed[0];
             this.y += this.speed[1];
         }
 
-        if (this.y + this.radius > config.CANVAS_HEIGHT)
-        {
+        if (this.y + this.radius > config.CANVAS_HEIGHT) {
             this.type = "for_delete";
         }
     }
 
-    paddleCollision()
-    {
+    paddleCollision() {
         if ((this.y + this.radius > paddle.y) && (this.y - this.radius < paddle.y + paddle.height)
-            && (this.x + this.radius > paddle.x) && (this.x - this.radius < paddle.x + paddle.width))
-        {
+            && (this.x + this.radius > paddle.x) && (this.x - this.radius < paddle.x + paddle.width)) {
             play_audio(this.paddle_item_up_sound);
             switch (this.type) {
                 case "life":
@@ -1043,8 +864,7 @@ class Bonus
                     break;
                 case "mega":
                     paddle.mega_duration += this.duration;
-                    if (!paddle.mega_activated)
-                    {
+                    if (!paddle.mega_activated) {
                         paddle.mega_activated = true;
                         paddle.change_size(100, 20);
                     }
@@ -1056,13 +876,11 @@ class Bonus
         }
     }
 
-    ballCollision()
-    {
+    ballCollision() {
         let distX = this.x - ball.x;
         let distY = this.y - ball.y;
         let distance = Math.sqrt(distX * distX + distY * distY);
-        if (distance <= this.radius + ball.radius)
-        {
+        if (distance <= this.radius + ball.radius) {
             this.was_ball_collision = true;
             play_audio(this.ball_item_up_sound);
             switch (this.type) {
@@ -1088,8 +906,7 @@ class Bonus
                     break;
                 case "mega":
                     ball.mega_duration += this.duration;
-                    if (!ball.mega_activated)
-                    {
+                    if (!ball.mega_activated) {
                         ball.mega_activated = true;
                         ball.damage = 20;
                         ball.change_size();
@@ -1101,30 +918,24 @@ class Bonus
         }
     }
 
-    brickCollision(bricks)
-    {
+    brickCollision(bricks) {
         this.onBrick = false;
-        for (let i = 0; i < bricks.length; i++)
-        {
+        for (let i = 0; i < bricks.length; i++) {
             let brick = bricks[i];
             if ((this.y + this.radius > brick.y) && (this.y - this.radius < brick.y + brick.height)
-             && (this.x + this.radius - 3 > brick.x) && (this.x - this.radius < brick.x + brick.width - 3) && (this.y < brick.y))
-            {
+                && (this.x + this.radius - 3 > brick.x) && (this.x - this.radius < brick.x + brick.width - 3) && (this.y < brick.y)) {
                 this.onBrick = true;
                 this.speed = brick.speed;
             }
         }
     }
 
-    create_score_obj()
-    {
-        if (this.score > 0)
-        {
-            if (this.was_ball_collision){
+    create_score_obj() {
+        if (this.score > 0) {
+            if (this.was_ball_collision) {
                 game_score += this.score * 2;
                 score_list.push(new Score_obj(this.context, this.score * 2, this.x, this.y));
-            }
-            else {
+            } else {
                 game_score += this.score;
                 score_list.push(new Score_obj(this.context, this.score, this.x, this.y));
             }
@@ -1139,10 +950,8 @@ class LifeBonus extends Bonus {
     }
 }
 
-class InvisibilityBonus extends Bonus
-{
-    constructor(context, type, x, y)
-    {
+class InvisibilityBonus extends Bonus {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
 
         this.duration = 500;
@@ -1150,10 +959,8 @@ class InvisibilityBonus extends Bonus
     }
 }
 
-class MegaBonus extends Bonus
-{
-    constructor(context, type, x, y)
-    {
+class MegaBonus extends Bonus {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
 
         this.duration = 500;
@@ -1161,10 +968,8 @@ class MegaBonus extends Bonus
     }
 }
 
-class SpeedBonus extends Bonus
-{
-    constructor(context, type, x, y)
-    {
+class SpeedBonus extends Bonus {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
 
         this.duration = 200;
@@ -1172,10 +977,8 @@ class SpeedBonus extends Bonus
     }
 }
 
-class InvulnerabilityBonus extends Bonus
-{
-    constructor(context, type, x, y)
-    {
+class InvulnerabilityBonus extends Bonus {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
 
         this.duration = 1000;
@@ -1183,19 +986,15 @@ class InvulnerabilityBonus extends Bonus
     }
 }
 
-class HpBonus extends Bonus
-{
-    constructor(context, type, x, y)
-    {
+class HpBonus extends Bonus {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.radius = 18;
     }
 }
 
-class Barrel
-{
-    constructor(context, type, x, y)
-    {
+class Barrel {
+    constructor(context, type, x, y) {
         this.context = context;
         this.width = 23;
         this.height = 33;
@@ -1221,63 +1020,51 @@ class Barrel
         this.explode_sound = "/static/sound/barrel_explosion.wav";
     }
 
-    draw()
-    {
-        if (this.explode && this.frame_count <= 15)
-        {
+    draw() {
+        if (this.explode && this.frame_count <= 15) {
             this.frame_count++;
         }
 
-        if (this.explode && this.frame_count > 15)
-        {
+        if (this.explode && this.frame_count > 15) {
             this.type = "for_delete";
         }
 
-        if (this.frame_count === 0)
-        {
+        if (this.frame_count === 0) {
             context.drawImage(this.image, this.x, this.y);
             return;
         }
 
-        if (this.frame_count <= 5)
-        {
+        if (this.frame_count <= 5) {
             let width_diff = (this.width - this.animation1.width) / 2;
             let height_diff = this.height - this.animation1.height;
             context.drawImage(this.animation1, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.frame_count <= 10)
-        {
+        if (this.frame_count <= 10) {
             let width_diff = (this.width - this.animation2.width) / 2;
             let height_diff = this.height - this.animation2.height;
             context.drawImage(this.animation2, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.frame_count <= 15)
-        {
+        if (this.frame_count <= 15) {
             let width_diff = (this.width - this.animation3.width) / 2;
             let height_diff = this.height - this.animation3.height;
             context.drawImage(this.animation3, this.x + width_diff, this.y + height_diff);
         }
     }
 
-    move()
-    {
-        if (!this.onBrick && !this.onPaddle)
-        {
+    move() {
+        if (!this.onBrick && !this.onPaddle) {
             this.y += this.speed[1];
             this.speed[1] += config.FALLING_SPEED;
         }
-        if (this.onBrick)
-        {
-            this.x +=this.speed[0];
+        if (this.onBrick) {
+            this.x += this.speed[0];
             this.y += this.speed[1];
         }
 
-        if (this.y + this.height > config.CANVAS_HEIGHT)
-        {
-            if (!this.explode)
-            {
+        if (this.y + this.height > config.CANVAS_HEIGHT) {
+            if (!this.explode) {
                 this.create_score_obj();
                 play_audio(this.explode_sound);
             }
@@ -1285,72 +1072,61 @@ class Barrel
             this.explode = true;
         }
 
-        if (this.onPaddle)
-        {
+        if (this.onPaddle) {
             this.y = paddle.y - this.height;
             this.x += paddle.speed[0];
         }
     }
 
-    brickCollision(bricks)
-    {
+    brickCollision(bricks) {
         this.onBrick = false;
-        for (let i = 0; i < bricks.length; i++)
-        {
+        for (let i = 0; i < bricks.length; i++) {
             let brick = bricks[i];
             if ((this.y + this.height > brick.y) && (this.y < brick.y + brick.height)
-             && (this.x + this.width - 3 > brick.x) && (this.x < brick.x + brick.width - 3) && (this.y < brick.y))
-            {
+                && (this.x + this.width - 3 > brick.x) && (this.x < brick.x + brick.width - 3) && (this.y < brick.y)) {
                 this.onBrick = true;
                 this.speed = brick.speed;
             }
         }
     }
 
-    ballCollision()
-    {
-       if ((!ball.fall) && (ball.y + ball.radius > this.y) && (ball.y - ball.radius < this.y + this.height)
-       && (ball.x + ball.radius > this.x) && (ball.x - ball.radius < this.x + this.width) && !this.explode)
-       {
-        play_audio(this.explode_sound);
-        this.explode = true;
+    ballCollision() {
+        if ((!ball.fall) && (ball.y + ball.radius > this.y) && (ball.y - ball.radius < this.y + this.height)
+            && (ball.x + ball.radius > this.x) && (ball.x - ball.radius < this.x + this.width) && !this.explode) {
+            play_audio(this.explode_sound);
+            this.explode = true;
 
-        let vector = [ball.x - (this.x + this.width / 2), ball.y - (this.y + this.height / 2)];
-        let length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
-        ball.speed = [(vector[0] / length * ball.start_speed), (vector[1] / length * ball.start_speed)];
-        ball.change_acceleration([vector[0] / length * 10, vector[1] / length * 10]);
-        ball.change_hp(-1);
-       }
+            let vector = [ball.x - (this.x + this.width / 2), ball.y - (this.y + this.height / 2)];
+            let length = Math.sqrt(vector[0] * vector[0] + vector[1] * vector[1]);
+            ball.speed = [(vector[0] / length * ball.start_speed), (vector[1] / length * ball.start_speed)];
+            ball.change_acceleration([vector[0] / length * 10, vector[1] / length * 10]);
+            ball.change_hp(-1);
+        }
     }
 
-    paddleCollision()
-    {
+    paddleCollision() {
         if ((this.y + this.height > paddle.y) && (this.y < paddle.y + paddle.height)
-             && (this.x + this.width > paddle.x) && (this.x < paddle.x + paddle.width))
-            {
-                this.onPaddle = true;
-                this.speed[1] = 0;
-            }
-        if ((this.x + this.width < paddle.x) || (this.x > paddle.x + paddle.width))
-            {
-                this.onPaddle = false;
-            }
+            && (this.x + this.width > paddle.x) && (this.x < paddle.x + paddle.width)) {
+            this.onPaddle = true;
+            this.speed[1] = 0;
+        }
+        if ((this.x + this.width < paddle.x) || (this.x > paddle.x + paddle.width)) {
+            this.onPaddle = false;
+        }
     }
 
-    create_score_obj()
-    {
+    create_score_obj() {
         game_score += this.score;
         score_list.push(new Score_obj(this.context, this.score, this.x, this.y));
     }
 }
 
-class Enemy
-{
+class Enemy {
     height;
     width;
     score;
-    constructor(context, type, x, y)
-    {
+
+    constructor(context, type, x, y) {
         this.context = context;
         this.x = x;
         this.y = y;
@@ -1401,163 +1177,134 @@ class Enemy
         this.death_sound_2 = "/static/sound/" + type + "_death2.wav";
     }
 
-    draw()
-    {
-        if(!this.shooting && !this.dead && this.frame_count > 120)
-        {
+    draw() {
+        if (!this.shooting && !this.dead && this.frame_count > 120) {
             this.frame_count = 0;
         }
 
-        if (this.shooting && this.frame_count > 120)
-        {
+        if (this.shooting && this.frame_count > 120) {
             this.shooting = false;
             this.frame_count = 0;
         }
 
-        if (this.injured && this.frame_count > 30)
-        {
+        if (this.injured && this.frame_count > 30) {
             this.injured = false;
             this.frame_count = 0;
         }
 
-        if (!this.dead && this.shooting && this.frame_count <= 10)
-        {
-            if (this.x < ball.x)
-            {
+        if (!this.dead && this.shooting && this.frame_count <= 10) {
+            if (this.x < ball.x) {
                 this.context.drawImage(this.fire_right_1, this.x, this.y);
-                this.frame_count ++;
+                this.frame_count++;
                 return;
             }
-            if (this.x > ball.x)
-            {
+            if (this.x > ball.x) {
                 this.context.drawImage(this.fire_left_1, this.x, this.y);
                 this.frame_count++;
                 return;
             }
         }
-        if (!this.dead && this.shooting && this.frame_count <= 40)
-        {
-            if (this.x < ball.x)
-            {
+        if (!this.dead && this.shooting && this.frame_count <= 40) {
+            if (this.x < ball.x) {
                 this.context.drawImage(this.fire_right_2, this.x, this.y);
                 this.frame_count++;
                 return;
             }
-            if (this.x > ball.x)
-            {
+            if (this.x > ball.x) {
                 this.context.drawImage(this.fire_left_2, this.x, this.y);
                 this.frame_count++;
                 return;
             }
         }
-        if (!this.dead && this.shooting && this.frame_count <= 120)
-        {
-            if (this.x < ball.x)
-            {
+        if (!this.dead && this.shooting && this.frame_count <= 120) {
+            if (this.x < ball.x) {
                 this.context.drawImage(this.fire_right_3, this.x, this.y);
                 this.frame_count++;
                 return;
             }
-            if (this.x > ball.x)
-            {
+            if (this.x > ball.x) {
                 this.context.drawImage(this.fire_left_3, this.x, this.y);
                 this.frame_count++;
                 return;
             }
         }
 
-        if (this.injured && this.frame_count <= 30)
-        {
+        if (this.injured && this.frame_count <= 30) {
             this.context.drawImage(this.injure, this.x, this.y);
             this.frame_count++;
             return;
         }
 
-        if (!this.dead && this.frame_count <= 30)
-        {
+        if (!this.dead && this.frame_count <= 30) {
             this.context.drawImage(this.animation1, this.x, this.y);
             this.frame_count++;
             return;
         }
-        if (!this.dead && this.frame_count <= 60)
-        {
+        if (!this.dead && this.frame_count <= 60) {
             this.context.drawImage(this.animation2, this.x, this.y);
             this.frame_count++;
             return;
         }
-        if (!this.dead && this.frame_count <= 90)
-        {
+        if (!this.dead && this.frame_count <= 90) {
             this.context.drawImage(this.animation3, this.x, this.y);
             this.frame_count++;
             return;
         }
-        if (!this.dead && this.frame_count <= 120)
-        {
+        if (!this.dead && this.frame_count <= 120) {
             this.context.drawImage(this.animation2, this.x, this.y);
             this.frame_count++;
             return;
         }
 
-        if (this.dead && this.frame_count <= 10)
-        {
+        if (this.dead && this.frame_count <= 10) {
             let height_diff = this.height - this.death1.height;
             this.context.drawImage(this.death1, this.x, this.y + height_diff);
             this.frame_count++;
             return;
         }
-        if (this.dead && this.frame_count <= 20)
-        {
+        if (this.dead && this.frame_count <= 20) {
             let height_diff = this.height - this.death2.height;
             this.context.drawImage(this.death2, this.x, this.y + height_diff);
             this.frame_count++;
             return;
         }
-        if (this.dead && this.frame_count <= 30)
-        {
+        if (this.dead && this.frame_count <= 30) {
             let height_diff = this.height - this.death3.height;
             this.context.drawImage(this.death3, this.x, this.y + height_diff);
             this.frame_count++;
             return;
         }
-        if (this.dead && this.frame_count <= 40)
-        {
+        if (this.dead && this.frame_count <= 40) {
             let height_diff = this.height - this.death4.height;
             this.context.drawImage(this.death4, this.x, this.y + height_diff);
             this.frame_count++;
             return;
         }
-        if (this.dead && this.frame_count <= 50)
-        {
+        if (this.dead && this.frame_count <= 50) {
             let height_diff = this.height - this.death5.height;
             this.context.drawImage(this.death5, this.x, this.y + height_diff);
             this.frame_count++;
             return;
         }
-        if (this.dead && this.frame_count <= 60)
-        {
+        if (this.dead && this.frame_count <= 60) {
             let height_diff = this.height - this.death6.height;
             this.context.drawImage(this.death6, this.x, this.y + height_diff);
         }
     }
 
-    move()
-    {
-        if (!this.onBrick)
-        {
+    move() {
+        if (!this.onBrick) {
             this.y += this.speed[1];
             this.speed[1] += config.FALLING_SPEED;
         }
 
-        if (this.x > 0 && this.x + this.width < config.CANVAS_WIDTH)
-            {
-                this.x += this.speed[0];
-            }
+        if (this.x > 0 && this.x + this.width < config.CANVAS_WIDTH) {
+            this.x += this.speed[0];
+        }
 
-        if (this.y + this.height > config.CANVAS_HEIGHT)
-        {
+        if (this.y + this.height > config.CANVAS_HEIGHT) {
             this.speed = [0, 0];
-            if (!this.dead)
-            {
+            if (!this.dead) {
                 this.frame_count = 0;
                 this.dead = true;
                 play_audio(this.death_sound_2);
@@ -1567,63 +1314,48 @@ class Enemy
         }
     }
 
-    friction()
-    {
+    friction() {
         let shift = config.FRICTION
-        if (this.speed[0] > shift)
-        {
+        if (this.speed[0] > shift) {
             this.speed[0] -= shift;
         }
-        if (this.speed[0] < -shift)
-        {
+        if (this.speed[0] < -shift) {
             this.speed[0] += shift;
         }
-        if (this.speed[0] < shift && this.speed[0] > -shift)
-        {
+        if (this.speed[0] < shift && this.speed[0] > -shift) {
             this.speed[0] = 0;
         }
     }
 
-    brickCollision(bricks)
-    {
+    brickCollision(bricks) {
         this.onBrick = false;
-        for (let i = 0; i < bricks.length; i++)
-        {
+        for (let i = 0; i < bricks.length; i++) {
             let brick = bricks[i];
             if ((this.y + this.height > brick.y) && (this.y < brick.y + brick.height)
-             && (this.x + this.width / 2 > brick.x) && (this.x + this.width / 2 < brick.x + brick.width)
-             && (this.y + this.height - 5 <= brick.y))
-            {
+                && (this.x + this.width / 2 > brick.x) && (this.x + this.width / 2 < brick.x + brick.width)
+                && (this.y + this.height - 5 <= brick.y)) {
                 this.onBrick = true;
                 this.speed[1] = 0;
             }
         }
     }
 
-    ballCollision()
-    {
-       if ((!this.dead) && (!ball.fall) && (ball.y + ball.radius > this.y) && (ball.y - ball.radius < this.y + this.height)
-       && (ball.x + ball.radius > this.x) && (ball.x - ball.radius < this.x + this.width))
-       {
+    ballCollision() {
+        if ((!this.dead) && (!ball.fall) && (ball.y + ball.radius > this.y) && (ball.y - ball.radius < this.y + this.height)
+            && (ball.x + ball.radius > this.x) && (ball.x - ball.radius < this.x + this.width)) {
             this.frame_count = 0;
             this.hp -= ball.damage;
-            if (this.hp <= 0 || !this.onBrick)
-            {
+            if (this.hp <= 0 || !this.onBrick) {
                 this.dead = true;
                 play_audio(this.death_sound_1);
-                if (this.x < ball.x)
-                {
+                if (this.x < ball.x) {
                     this.speed[0] = -3 - Math.random();
-                }
-                else
-                {
+                } else {
                     this.speed[0] = 3 + Math.random();
                 }
                 game_score += this.score * 2;
                 score_list.push(new Score_obj(this.context, this.score * 2, this.x + this.width / 2, this.y + this.height / 2));
-            }
-            else
-            {
+            } else {
                 this.shooting_delay += 50;
                 this.injured = true;
                 play_audio(this.injured_sound);
@@ -1636,14 +1368,12 @@ class Enemy
             this.shooting = false;
             play_audio(ball.attack_sound);
             ball.animation = true;
-       }
+        }
     }
 }
 
-class Doomguy extends Enemy
-{
-    constructor(context, type, x, y)
-    {
+class Doomguy extends Enemy {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.x = x + 30;
         this.height = 40;
@@ -1658,29 +1388,22 @@ class Doomguy extends Enemy
 
     }
 
-    checkForShooting()
-    {
-        if (this.onBrick && !this.dead)
-        {
+    checkForShooting() {
+        if (this.onBrick && !this.dead) {
             let distX = this.x - ball.x;
             let distY = this.y - ball.y;
             let distance = Math.sqrt(distX * distX + distY * distY);
             if ((distance <= ball.radius + 100) &&
-            (this.y < ball.y + ball.radius - 10) && (this.y + this.height > ball.y - ball.radius + 10))
-            {
-                if (!this.shooting && ball.invisibility_duration === 0)
-                {
+                (this.y < ball.y + ball.radius - 10) && (this.y + this.height > ball.y - ball.radius + 10)) {
+                if (!this.shooting && ball.invisibility_duration === 0) {
                     this.shooting = true;
                     ball.injured = true;
                     play_audio(this.fire_sound);
                     this.frame_count = 0;
                     ball.change_hp(-1);
-                    if (this.x < ball.x)
-                    {
-                        ball.change_acceleration([7 +  Math.random() * 5, 0]);
-                    }
-                    else
-                    {
+                    if (this.x < ball.x) {
+                        ball.change_acceleration([7 + Math.random() * 5, 0]);
+                    } else {
                         ball.change_acceleration([-7 - Math.random() * 5, 0]);
                     }
                 }
@@ -1689,10 +1412,8 @@ class Doomguy extends Enemy
     }
 }
 
-class Imp extends Enemy
-{
-    constructor(context, type, x, y)
-    {
+class Imp extends Enemy {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.x = x + 30;
         this.height = 40;
@@ -1704,46 +1425,35 @@ class Imp extends Enemy
         this.type = type;
     }
 
-    checkForShooting()
-    {
-        if (!this.dead && this.onBrick)
-        {
-            if (this.shooting_delay === 40)
-            {
+    checkForShooting() {
+        if (!this.dead && this.onBrick) {
+            if (this.shooting_delay === 40) {
                 this.frame_count = 0;
             }
 
-             if (this.shooting_delay < 40)
-            {
+            if (this.shooting_delay < 40) {
                 this.shooting = true;
             }
 
-            if (this.shooting && this.shooting_delay === 0)
-            {
+            if (this.shooting && this.shooting_delay === 0) {
                 play_audio(this.fire_sound);
-                if (this.x + this.width / 2 < ball.x)
-                {
+                if (this.x + this.width / 2 < ball.x) {
                     rockets.push(new Red_fire(this.context, "red_fire", this.x + this.width, this.y + this.height / 2 - 5));
-                }
-                else
-                {
+                } else {
                     rockets.push(new Red_fire(this.context, "red_fire", this.x, this.y + this.height / 2 - 5));
                 }
                 this.shooting_delay = 400 + Math.floor(Math.random() * 400)
             }
 
-            if (this.shooting_delay > 0)
-            {
-                this.shooting_delay --;
+            if (this.shooting_delay > 0) {
+                this.shooting_delay--;
             }
         }
     }
 }
 
-class Baron extends Enemy
-{
-    constructor(context, type, x, y)
-    {
+class Baron extends Enemy {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.x = x + 30;
         this.height = 50;
@@ -1759,46 +1469,35 @@ class Baron extends Enemy
         this.injure.src = "/static/images/arkanoid/" + type + "_injured.png";
     }
 
-    checkForShooting()
-    {
-        if (!this.dead && this.onBrick)
-        {
-            if (this.shooting_delay === 40)
-            {
+    checkForShooting() {
+        if (!this.dead && this.onBrick) {
+            if (this.shooting_delay === 40) {
                 this.frame_count = 0;
             }
 
-             if (this.shooting_delay < 40)
-            {
+            if (this.shooting_delay < 40) {
                 this.shooting = true;
             }
 
-            if (this.shooting && this.shooting_delay === 0)
-            {
+            if (this.shooting && this.shooting_delay === 0) {
                 play_audio(this.fire_sound);
-                if (this.x + this.width / 2 < ball.x)
-                {
+                if (this.x + this.width / 2 < ball.x) {
                     rockets.push(new Green_fire(this.context, "green_fire", this.x + this.width, this.y + this.height / 2 - 5));
-                }
-                else
-                {
+                } else {
                     rockets.push(new Green_fire(this.context, "green_fire", this.x, this.y + this.height / 2 - 5));
                 }
                 this.shooting_delay = 300 + Math.floor(Math.random() * 300)
             }
 
-            if (this.shooting_delay > 0)
-            {
-                this.shooting_delay --;
+            if (this.shooting_delay > 0) {
+                this.shooting_delay--;
             }
         }
     }
 }
 
-class Cyberdemon
-{
-    constructor(lvl)
-    {
+class Cyberdemon {
+    constructor(lvl) {
         this.context = context;
         this.x = config.CANVAS_WIDTH / 2;
         this.height = 110;
@@ -1871,180 +1570,147 @@ class Cyberdemon
         this.injured_sound = "/static/sound/cyber_injured.wav";
     }
 
-    draw()
-    {
-        if (!this.shooting && !this.dead && this.frame_count <= 120)
-        {
+    draw() {
+        if (!this.shooting && !this.dead && this.frame_count <= 120) {
             this.frame_count++;
         }
-        if(!this.shooting && !this.dead && this.frame_count > 120)
-        {
+        if (!this.shooting && !this.dead && this.frame_count > 120) {
             this.frame_count = 0;
         }
 
-        if (this.dead && this.frame_count < 200)
-        {
+        if (this.dead && this.frame_count < 200) {
             this.frame_count++;
         }
 
-        if (this.shooting && this.frame_count <= 120)
-        {
+        if (this.shooting && this.frame_count <= 120) {
             this.frame_count++;
         }
-        if (this.shooting && this.frame_count > 120)
-        {
+        if (this.shooting && this.frame_count > 120) {
             this.shooting = false;
             this.frame_count = 0;
         }
 
-        if (!this.dead && this.shooting && this.frame_count <= 10)
-        {
-            if (this.x < ball.x)
-            {
+        if (!this.dead && this.shooting && this.frame_count <= 10) {
+            if (this.x < ball.x) {
                 this.context.drawImage(this.fire_right_1, this.x, this.y);
                 return;
             }
-            if (this.x > ball.x)
-            {
+            if (this.x > ball.x) {
                 this.context.drawImage(this.fire_left_1, this.x, this.y);
                 return;
             }
         }
-        if (!this.dead && this.shooting && this.frame_count <= 40)
-        {
-            if (this.x < ball.x)
-            {
+        if (!this.dead && this.shooting && this.frame_count <= 40) {
+            if (this.x < ball.x) {
                 this.context.drawImage(this.fire_right_2, this.x, this.y);
                 return;
             }
-            if (this.x > ball.x)
-            {
+            if (this.x > ball.x) {
                 this.context.drawImage(this.fire_left_2, this.x, this.y);
                 return;
             }
         }
-        if (!this.dead && this.shooting && this.frame_count <= 80)
-        {
-            if (this.x < ball.x)
-            {
+        if (!this.dead && this.shooting && this.frame_count <= 80) {
+            if (this.x < ball.x) {
                 this.context.drawImage(this.fire_right_3, this.x, this.y);
                 return;
             }
-            if (this.x > ball.x)
-            {
+            if (this.x > ball.x) {
                 this.context.drawImage(this.fire_left_3, this.x, this.y);
                 return;
             }
         }
 
-        if (!this.dead && this.shooting && this.frame_count <= 120)
-        {
-            if (this.x < ball.x)
-            {
+        if (!this.dead && this.shooting && this.frame_count <= 120) {
+            if (this.x < ball.x) {
                 this.context.drawImage(this.fire_right_4, this.x, this.y);
                 return;
             }
-            if (this.x > ball.x)
-            {
+            if (this.x > ball.x) {
                 this.context.drawImage(this.fire_left_4, this.x, this.y);
                 return;
             }
         }
 
-        if (!this.dead && this.frame_count <= 30)
-        {
+        if (!this.dead && this.frame_count <= 30) {
             this.context.drawImage(this.animation1, this.x, this.y);
             return;
         }
-        if (!this.dead && this.frame_count <= 60)
-        {
+        if (!this.dead && this.frame_count <= 60) {
             this.context.drawImage(this.animation2, this.x, this.y);
             return;
         }
-        if (!this.dead && this.frame_count <= 90)
-        {
+        if (!this.dead && this.frame_count <= 90) {
             this.context.drawImage(this.animation3, this.x, this.y);
             return;
         }
-        if (!this.dead && this.frame_count <= 120)
-        {
+        if (!this.dead && this.frame_count <= 120) {
             this.context.drawImage(this.animation4, this.x, this.y);
             return;
         }
 
-        if (this.dead && this.frame_count <= 10)
-        {
+        if (this.dead && this.frame_count <= 10) {
             let height_diff = this.height - this.death1.height;
             let width_diff = (this.width - this.death1.width) / 2;
             this.context.drawImage(this.death1, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.dead && this.frame_count <= 20)
-        {
+        if (this.dead && this.frame_count <= 20) {
             let height_diff = this.height - this.death2.height;
             let width_diff = (this.width - this.death2.width) / 2;
             this.context.drawImage(this.death2, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.dead && this.frame_count <= 30)
-        {
+        if (this.dead && this.frame_count <= 30) {
             let height_diff = this.height - this.death3.height;
             let width_diff = (this.width - this.death3.width) / 2;
             this.context.drawImage(this.death3, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.dead && this.frame_count <= 40)
-        {
+        if (this.dead && this.frame_count <= 40) {
             let height_diff = this.height - this.death4.height;
             let width_diff = (this.width - this.death4.width) / 2;
             this.context.drawImage(this.death4, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.dead && this.frame_count <= 50)
-        {
+        if (this.dead && this.frame_count <= 50) {
             let height_diff = this.height - this.death5.height;
             let width_diff = (this.width - this.death5.width) / 2;
             this.context.drawImage(this.death5, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.dead && this.frame_count <= 60)
-        {
+        if (this.dead && this.frame_count <= 60) {
             let height_diff = this.height - this.death6.height;
             let width_diff = (this.width - this.death6.width) / 2;
             this.context.drawImage(this.death6, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.dead && this.frame_count <= 70)
-        {
+        if (this.dead && this.frame_count <= 70) {
             let height_diff = this.height - this.death7.height;
             let width_diff = (this.width - this.death7.width) / 2;
             this.context.drawImage(this.death7, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.dead && this.frame_count <= 80)
-        {
+        if (this.dead && this.frame_count <= 80) {
             let height_diff = this.height - this.death8.height;
             let width_diff = (this.width - this.death8.width) / 2;
             this.context.drawImage(this.death8, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.dead && this.frame_count <= 90)
-        {
+        if (this.dead && this.frame_count <= 90) {
             let height_diff = this.height - this.death9.height;
             let width_diff = (this.width - this.death9.width) / 2;
             this.context.drawImage(this.death9, this.x + width_diff, this.y + height_diff);
             return;
         }
-        if (this.dead && this.frame_count <= 200)
-        {
+        if (this.dead && this.frame_count <= 200) {
             let height_diff = this.height - this.death10.height;
             let width_diff = (this.width - this.death10.width) / 2;
             this.context.drawImage(this.death10, this.x + width_diff, this.y + height_diff);
         }
     }
 
-    hp_indicator()
-    {
+    hp_indicator() {
         this.context.lineWidth = 1;
         this.context.strokeStyle = "black";
         this.context.fillStyle = "green";
@@ -2053,12 +1719,11 @@ class Cyberdemon
         this.context.fill();
         this.context.stroke();
         this.context.fillStyle = "red";
-        this.context.fillRect(config.CANVAS_WIDTH - 39, 39, -(config.CANVAS_WIDTH - 78) / this.full_hp * (this.full_hp - this.hp),8)
+        this.context.fillRect(config.CANVAS_WIDTH - 39, 39, -(config.CANVAS_WIDTH - 78) / this.full_hp * (this.full_hp - this.hp), 8)
         this.context.closePath();
     }
 
-    move()
-    {
+    move() {
         let _step = Math.PI / 600;
         let _root2 = Math.sqrt(2);
         let _a = 200;
@@ -2070,74 +1735,58 @@ class Cyberdemon
         let x = _a * _root2 * cos / sin_sq;
         let y = _a * _root2 * cos * sin / sin_sq;
         this._phi += _step;
-        if (this._phi >= Math.PI * 2 + _step)
-        {
+        if (this._phi >= Math.PI * 2 + _step) {
             this._phi = 0;
         }
         this.x = x + config.CANVAS_WIDTH / 2 - this.width / 2;
         this.y = y + config.CANVAS_HEIGHT / 2 - 150;
     }
 
-    checkForShooting()
-    {
-        if (!this.dead)
-        {
-            if (this.shooting_delay === 40)
-            {
+    checkForShooting() {
+        if (!this.dead) {
+            if (this.shooting_delay === 40) {
                 this.frame_count = 0;
             }
 
-             if (this.shooting_delay < 40)
-            {
+            if (this.shooting_delay < 40) {
                 this.shooting = true;
             }
 
-            if (this.shooting && this.shooting_delay === 0 && this.rockets_fired < this.rockets_in_row)
-            {
-                this.rockets_fired ++;
+            if (this.shooting && this.shooting_delay === 0 && this.rockets_fired < this.rockets_in_row) {
+                this.rockets_fired++;
                 play_audio(this.fire_sound);
-                if (this.x + this.width / 2 < ball.x)
-                {
+                if (this.x + this.width / 2 < ball.x) {
                     rockets.push(new Rocket(this.context, "rocket", this.x + this.width + 15, this.y + this.height / 2 - 10));
-                }
-                else
-                {
-                    rockets.push(new Rocket(this.context, "rocket",this.x + 15, this.y + this.height / 2));
+                } else {
+                    rockets.push(new Rocket(this.context, "rocket", this.x + 15, this.y + this.height / 2));
                 }
                 this.shooting_delay = 10;
             }
 
-            if (this.shooting_delay > 0)
-            {
-                this.shooting_delay --;
+            if (this.shooting_delay > 0) {
+                this.shooting_delay--;
             }
 
-            if (this.rockets_fired === this.rockets_in_row)
-            {
+            if (this.rockets_fired === this.rockets_in_row) {
                 this.shooting_delay = 200 + Math.floor(Math.random() * 200);
                 this.rockets_fired = 0;
             }
         }
     }
 
-    ballCollision()
-    {
-       if ((!this.dead) && (!ball.fall) && (ball.y + ball.radius > this.y + 10) && (ball.y - ball.radius < this.y + this.height - 10)
-       && (ball.x + ball.radius > this.x + 10) && (ball.x - ball.radius < this.x + this.width - 10))
-        {
+    ballCollision() {
+        if ((!this.dead) && (!ball.fall) && (ball.y + ball.radius > this.y + 10) && (ball.y - ball.radius < this.y + this.height - 10)
+            && (ball.x + ball.radius > this.x + 10) && (ball.x - ball.radius < this.x + this.width - 10)) {
             this.hp -= ball.damage;
             play_audio(ball.attack_sound);
-            if (this.hp <= 0)
-            {
+            if (this.hp <= 0) {
                 this.dead = true;
                 this.frame_count = 0;
                 lives += Math.round(this.lvl / 5);
                 play_audio(this.death_sound);
                 game_score += this.score;
                 score_list.push(new Score_obj(this.context, this.score, this.x + this.width / 2, this.y + this.height / 2));
-            }
-            else
-            {
+            } else {
                 this.shooting_delay += 20;
                 this.rockets_fired = 0;
                 play_audio(this.injured_sound);
@@ -2153,10 +1802,8 @@ class Cyberdemon
     }
 }
 
-class Projectile
-{
-    constructor(context, type, x, y)
-    {
+class Projectile {
+    constructor(context, type, x, y) {
         this.context = context;
         this.x = x;
         this.y = y;
@@ -2186,29 +1833,24 @@ class Projectile
         this.explosion_sound = "/static/sound/" + type + "_explosion.wav"
     }
 
-    draw()
-    {
-        if (this.explode && this.frame_count < 30)
-        {
+    draw() {
+        if (this.explode && this.frame_count < 30) {
             this.frame_count++;
         }
 
-        if (this.explode && this.frame_count < 10)
-        {
+        if (this.explode && this.frame_count < 10) {
             let width_diff = (this.width - this.animation1.width) / 2;
             let height_diff = (this.height - this.animation1.height) / 2;
             this.context.drawImage(this.animation1, this.x - this.radius + width_diff, this.y - this.radius + height_diff);
             return;
         }
-        if (this.explode && this.frame_count < 20)
-        {
+        if (this.explode && this.frame_count < 20) {
             let width_diff = (this.width - this.animation2.width) / 2;
             let height_diff = (this.height - this.animation2.height) / 2;
             this.context.drawImage(this.animation2, this.x - this.radius + width_diff, this.y - this.radius + height_diff);
             return;
         }
-        if (this.explode && this.frame_count <= 30)
-        {
+        if (this.explode && this.frame_count <= 30) {
             let width_diff = (this.width - this.animation3.width) / 2;
             let height_diff = (this.height - this.animation3.height) / 2;
             this.context.drawImage(this.animation3, this.x - this.radius + width_diff, this.y - this.radius + height_diff);
@@ -2220,37 +1862,26 @@ class Projectile
         let angle = Math.acos(cos);
         this.context.save();
         this.context.translate(this.x, this.y);
-        if (this.speed[1] > 0)
-        {
+        if (this.speed[1] > 0) {
             this.context.rotate(angle);
-        }
-        else
-        {
+        } else {
             this.context.rotate(-angle);
         }
-        if (this.frame_count < 10)
-        {
+        if (this.frame_count < 10) {
             this.context.drawImage(this.image1, 0, 0);
-        }
-        else
-        {
+        } else {
             this.context.drawImage(this.image2, 0, 0);
         }
-        if (this.frame_count < 20)
-        {
-            this.frame_count ++;
-        }
-        else
-        {
+        if (this.frame_count < 20) {
+            this.frame_count++;
+        } else {
             this.frame_count = 0;
         }
         this.context.restore();
     }
 
-    move()
-    {
-        if (!this.explode)
-        {
+    move() {
+        if (!this.explode) {
             this.x += this.speed[0];
             this.y += this.speed[1];
 
@@ -2259,37 +1890,29 @@ class Projectile
 
             let acceleration_vector = [ball.x - this.x, ball.y - this.y];
 
-            if (ball.invulnerability_duration === 0)
-            {
+            if (ball.invulnerability_duration === 0) {
                 this.acceleration = [acceleration_vector[0] * this.acceleration_multiplier, acceleration_vector[1] * this.acceleration_multiplier];
-            }
-            else
-            {
+            } else {
                 this.acceleration = [this.acceleration[0] * this.acceleration_multiplier, this.acceleration[1] * this.acceleration_multiplier];
             }
         }
     }
 
-    collision()
-    {
+    collision() {
         if (!this.explode && ((this.x - this.radius < 0) || (this.x + this.radius > config.CANVAS_WIDTH)
-            || (this.y - this.radius < 0) || (this.y + this.radius > config.CANVAS_HEIGHT)))
-        {
+            || (this.y - this.radius < 0) || (this.y + this.radius > config.CANVAS_HEIGHT))) {
             this.explode = true;
             play_audio(this.explosion_sound);
             this.speed = [0, 0];
         }
 
-        if (!this.explode)
-        {
+        if (!this.explode) {
             let distX = this.x - ball.x;
             let distY = this.y - ball.y;
             let distance = Math.sqrt(distX * distX + distY * distY);
-            if (distance <= this.radius + ball.radius)
-            {
+            if (distance <= this.radius + ball.radius) {
                 this.explode = true;
-                if (ball.onPaddle)
-                {
+                if (ball.onPaddle) {
                     ball.onPaddle = false;
                     ball.speed = this.speed;
                 }
@@ -2307,7 +1930,7 @@ class Projectile
                         ball.change_acceleration([vector[0] / length * 10, vector[1] / length * 10]);
                         break;
                     case "green_fire":
-                        ball.speed = [ball.speed[0] / 2 , ball.speed[1] / 2];
+                        ball.speed = [ball.speed[0] / 2, ball.speed[1] / 2];
                         ball.change_acceleration([vector[0] / length * 5, vector[1] / length * 5]);
                 }
                 ball.change_hp(-1);
@@ -2316,10 +1939,8 @@ class Projectile
     }
 }
 
-class Rocket extends Projectile
-{
-    constructor(context, type, x, y)
-    {
+class Rocket extends Projectile {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.width = 26;
         this.height = 14;
@@ -2328,10 +1949,8 @@ class Rocket extends Projectile
     }
 }
 
-class Red_fire extends Projectile
-{
-    constructor(context, type, x, y)
-    {
+class Red_fire extends Projectile {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.width = 26;
         this.height = 10;
@@ -2340,10 +1959,8 @@ class Red_fire extends Projectile
     }
 }
 
-class Green_fire extends Projectile
-{
-    constructor(context, type, x, y)
-    {
+class Green_fire extends Projectile {
+    constructor(context, type, x, y) {
         super(context, type, x, y)
         this.width = 27;
         this.height = 10;
@@ -2353,10 +1970,8 @@ class Green_fire extends Projectile
     }
 }
 
-class Torch
-{
-    constructor(context, x, y)
-    {
+class Torch {
+    constructor(context, x, y) {
         this.context = context;
         this.x = x;
         this.width = 26;
@@ -2374,45 +1989,35 @@ class Torch
         this.animation4.src = "/static/images/arkanoid/torch4.png";
     }
 
-    draw()
-    {
-       if (this.frame_count < 40)
-        {
-            this.frame_count ++;
-        }
-        else
-        {
+    draw() {
+        if (this.frame_count < 40) {
+            this.frame_count++;
+        } else {
             this.frame_count = 0;
         }
-        if (this.frame_count <= 10)
-        {
+        if (this.frame_count <= 10) {
             this.context.drawImage(this.animation1, this.x, this.y);
             return;
         }
 
-        if (this.frame_count <= 20)
-        {
+        if (this.frame_count <= 20) {
             this.context.drawImage(this.animation2, this.x, this.y);
             return;
         }
 
-        if (this.frame_count <= 30)
-        {
+        if (this.frame_count <= 30) {
             this.context.drawImage(this.animation3, this.x, this.y);
             return;
         }
 
-        if (this.frame_count <= 40)
-        {
+        if (this.frame_count <= 40) {
             this.context.drawImage(this.animation4, this.x, this.y);
         }
     }
 }
 
-class Debris
-{
-    constructor(context, image_src, x, y, intersection)
-    {
+class Debris {
+    constructor(context, image_src, x, y, intersection) {
         this.context = context;
         this.x = [x, x, x, x];
         this.y = [y, y, y, y];
@@ -2427,13 +2032,11 @@ class Debris
         this.intersection = [intersection[0] - this.x[0] - this.width / 2, intersection[1] - this.y[0] - this.height / 2];
     }
 
-    draw()
-    {
+    draw() {
         this.context.strokeStyle = "black";
         this.context.lineWidth = 3;
 
-        for(let i = 0; i < 4; i++)
-        {
+        for (let i = 0; i < 4; i++) {
             this.context.save();
             this.context.translate(this.x[i] + this.width / 2, this.y[i] + this.height / 2);
             this.context.rotate(this.degrees[i] * Math.PI / 180);
@@ -2442,13 +2045,10 @@ class Debris
             this.context.closePath();
             this.draw_crack(i);
             this.context.restore();
-            if (i <= 1)
-            {
+            if (i <= 1) {
                 this.degrees[i] = (this.degrees[i] + Math.random() * 3) % 360;
                 this.x[i] -= this.speed_x[i] + Math.random() * 1.5;
-            }
-            else
-            {
+            } else {
                 this.degrees[i] = (this.degrees[i] - Math.random() * 3) % 360;
                 this.x[i] += this.speed_x[i] + Math.random() * 1.5;
             }
@@ -2457,34 +2057,29 @@ class Debris
         }
     }
 
-    create_shard(i)
-    {
-        if (i === 0)
-        {
+    create_shard(i) {
+        if (i === 0) {
             this.context.beginPath();
             this.context.moveTo(-this.width / 2, -this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
             this.context.lineTo(-this.width / 2, this.height / 2);
             this.context.clip();
         }
-        if (i === 1)
-        {
+        if (i === 1) {
             this.context.beginPath();
             this.context.moveTo(this.width / 2, -this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
             this.context.lineTo(-this.width / 2, -this.height / 2);
             this.context.clip();
         }
-        if (i === 2)
-        {
+        if (i === 2) {
             this.context.beginPath();
             this.context.moveTo(this.width / 2, -this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
             this.context.lineTo(this.width / 2, this.height / 2);
             this.context.clip();
         }
-        if (i === 3)
-        {
+        if (i === 3) {
             this.context.beginPath();
             this.context.moveTo(-this.width / 2, this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
@@ -2493,10 +2088,8 @@ class Debris
         }
     }
 
-    draw_crack(i)
-    {
-        if (i === 0)
-        {
+    draw_crack(i) {
+        if (i === 0) {
             this.context.beginPath();
             this.context.moveTo(-this.width / 2, -this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
@@ -2504,8 +2097,7 @@ class Debris
             this.context.closePath();
             this.context.stroke();
         }
-        if (i === 1)
-        {
+        if (i === 1) {
             this.context.beginPath();
             this.context.moveTo(this.width / 2, -this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
@@ -2513,8 +2105,7 @@ class Debris
             this.context.closePath();
             this.context.stroke();
         }
-        if (i === 2)
-        {
+        if (i === 2) {
             this.context.beginPath();
             this.context.moveTo(this.width / 2, -this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
@@ -2522,8 +2113,7 @@ class Debris
             this.context.closePath();
             this.context.stroke();
         }
-        if (i === 3)
-        {
+        if (i === 3) {
             this.context.beginPath();
             this.context.moveTo(-this.width / 2, this.height / 2);
             this.context.lineTo(this.intersection[0], this.intersection[1]);
@@ -2534,65 +2124,49 @@ class Debris
     }
 }
 
-class Score_obj
-{
-    constructor(context, score, x, y)
-    {
+class Score_obj {
+    constructor(context, score, x, y) {
         this.context = context;
         this.score = score;
         this.x = x;
         this.y = y;
-        if (this.score < 500)
-        {
+        if (this.score < 500) {
             this.font = "24px roboto";
-        }
-        else
-        {
+        } else {
             this.font = "bold 36px roboto";
         }
         this.opacity = 1;
         this.status = "exist"
     }
 
-    draw()
-    {
+    draw() {
         this.context.textAlign = "center";
         this.context.fillStyle = "#000000";
         this.context.font = this.font;
         this.context.globalAlpha = this.opacity;
         this.context.fillText(this.score, this.x, this.y);
         this.context.globalAlpha = 1;
-        if (this.score < 500)
-        {
+        if (this.score < 500) {
             this.opacity -= 0.03;
-        }
-        else
-        {
+        } else {
             this.opacity -= 0.01;
         }
-        if (this.opacity <= 0)
-        {
+        if (this.opacity <= 0) {
             this.status = "for_delete";
         }
     }
 
-    move()
-    {
-        if (this.score < 500)
-        {
+    move() {
+        if (this.score < 500) {
             this.y -= 1;
-        }
-        else
-        {
+        } else {
             this.y -= 0.5;
         }
     }
 }
 
-class Message
-{
-    constructor(context, text)
-    {
+class Message {
+    constructor(context, text) {
         this.context = context;
         this.font = "36px roboto";
         this.opacity = 1;
@@ -2600,8 +2174,7 @@ class Message
         this.status = "exist"
     }
 
-    draw()
-    {
+    draw() {
         this.context.textAlign = "center";
         this.context.fillStyle = "#000000";
         this.context.font = this.font;
@@ -2609,17 +2182,14 @@ class Message
         this.context.fillText(this.text, config.CANVAS_WIDTH / 2, config.CANVAS_HEIGHT / 2);
         this.context.globalAlpha = 1;
         this.opacity -= 0.002;
-        if (this.opacity <= 0)
-        {
+        if (this.opacity <= 0) {
             this.status = "for_delete";
         }
     }
 }
 
-function play_audio(path)
-{
-    if (!muted)
-    {
+function play_audio(path) {
+    if (!muted) {
         let audio = new Audio(path);
         audio.play();
     }
