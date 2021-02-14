@@ -34,7 +34,6 @@ def typing_trainer():
 
 @app.route('/media/<path:filename>')
 def download_file(filename):
-    print(filename)
     return send_from_directory(os.path.join(app.root_path, 'static/media'), filename)
 
 

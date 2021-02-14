@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
 {% block links %}
-    <link href="{{ url_for('static', filename='typing_trainer/css/app.a56782e0.css') }}" rel="preload" as="style">
-    <link href="{{ url_for('static', filename='typing_trainer/js/app.0ae6d88b.js') }}" rel="preload" as="script">
-    <link href="{{ url_for('static', filename='typing_trainer/js/chunk-vendors.05c83127.js') }}" rel="preload" as="script">
-    <link href="{{ url_for('static', filename='typing_trainer/css/app.a56782e0.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='typing_trainer/css/app.157993a7css') }}" rel="preload" as="style">
+<link href="{{ url_for('static', filename='typing_trainer/js/app.63ce0e7b.js') }}" rel="preload" as="script">
+<link href="{{ url_for('static', filename='typing_trainer/js/chunk-vendors.05c83127.js') }}" rel="preload" as="script">
+<link href="{{ url_for('static', filename='typing_trainer/css/app.157993a7.css') }}" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='project.css') }}">
 {% endblock %}
 
 {% block title %}
@@ -12,9 +13,23 @@ Typing trainer
 {% endblock %}
 
 {% block content %}
-    <noscript><strong>We're sorry but typing-trainer doesn't work properly without JavaScript enabled. Please enable it to
+<div class="content">
+    <h1>Typing trainer</h1>
+    <noscript><strong>We're sorry but typing-trainer doesn't work properly without JavaScript enabled. Please enable it
+        to
         continue.</strong></noscript>
     <div id="app"></div>
+    <p>
+        Программа для тренировки скорости печати. Позволяет выбрать текст на русском и английском языке.
+        Количество предложений в тексте от 1 до 10. Тренажер написан с помощью фреймворка Vue.
+    </p>
+    <p>
+        Русский текст
+        приложение получает с помощью api сайта <a class="inline-link" href="https://fish-text.ru/" target="_blank">fish-text.ru</a>.
+        Английский — <a class="inline-link" href="http://metaphorpsum.com/" target="_blank">metaphorpsum.com.</a>
+    </p>
+    <a href="https://github.com/vasiliypozhinskiy/typing_trainer" target="_blank">Репозиторий проекта</a>
     <script src="{{ url_for('static', filename='typing_trainer/js/chunk-vendors.05c83127.js') }}"></script>
-    <script src="{{ url_for('static', filename='typing_trainer/js/app.0ae6d88b.js') }}"></script>
+    <script src="{{ url_for('static', filename='typing_trainer/js/app.63ce0e7b.js') }}"></script>
+</div>
 {% endblock %}

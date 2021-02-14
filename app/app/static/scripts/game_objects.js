@@ -851,7 +851,9 @@ class Bonus {
                     lives += 1;
                     break;
                 case "hp":
-                    ball.change_hp(1);
+                    if (!ball.falling) {
+                        ball.change_hp(1);
+                    }
                     break;
                 case "invisibility":
                     paddle.invisibility_duration += this.duration;
@@ -886,13 +888,14 @@ class Bonus {
             switch (this.type) {
                 case "life":
                     lives += 1;
+                    ball.falling = false;
                     if (ball.hp < config.BALL_HP) {
                         ball.change_hp(config.BALL_HP - ball.hp);
-                        ball.falling = false;
                     }
                     break;
                 case "hp":
                     ball.change_hp(2);
+                    ball.falling = false;
                     break;
                 case "invisibility":
                     ball.invisibility_duration += this.duration;
@@ -1890,7 +1893,7 @@ class Projectile {
 
             let acceleration_vector = [ball.x - this.x, ball.y - this.y];
 
-            if (ball.invulnerability_duration === 0) {
+            if (ball.invisibility_duration === 0) {
                 this.acceleration = [acceleration_vector[0] * this.acceleration_multiplier, acceleration_vector[1] * this.acceleration_multiplier];
             } else {
                 this.acceleration = [this.acceleration[0] * this.acceleration_multiplier, this.acceleration[1] * this.acceleration_multiplier];

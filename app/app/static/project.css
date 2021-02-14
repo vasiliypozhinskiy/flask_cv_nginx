@@ -19,11 +19,16 @@ a {
    width: -moz-fit-content;
    margin: 0 auto;
    text-transform: uppercase;
+   outline: none;
    }
 
  a:hover {
          color: #808080;
          }
+
+.inline-link {
+    display: inline-block;
+}
 
 img {
     display: block;
@@ -57,3 +62,7 @@ img {
               text-align: center;
               margin: 0 auto;
               }
+
+#app {
+    margin: 0 auto;
+}
