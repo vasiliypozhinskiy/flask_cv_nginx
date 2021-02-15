@@ -1896,7 +1896,7 @@ class Projectile {
             if (ball.invisibility_duration === 0) {
                 this.acceleration = [acceleration_vector[0] * this.acceleration_multiplier, acceleration_vector[1] * this.acceleration_multiplier];
             } else {
-                this.acceleration = [this.acceleration[0] * this.acceleration_multiplier, this.acceleration[1] * this.acceleration_multiplier];
+                this.acceleration = [this.speed[0] * this.acceleration_multiplier, this.speed[1] * this.acceleration_multiplier];
             }
         }
     }

@@ -307,11 +307,11 @@ function random_bonus_generation() {
         } else if (seed > 0.7) {
             bonuses.push(new MegaBonus(context, "mega", x, 0));
         } else if (seed > 0.6) {
-            bonuses.push(new SpeedBonus(context, "hp", x, 0));
+            bonuses.push(new SpeedBonus(context, "speed", x, 0));
         } else if (seed > 0.4) {
             bonuses.push(new InvulnerabilityBonus(context, "invulnerability", x, 0));
         } else if (seed > 0.2) {
-            bonuses.push(new HpBonus(context, "speed", x, 0));
+            bonuses.push(new HpBonus(context, "hp", x, 0));
         } else {
             bonuses.push(new Barrel(context, "barrel", x, 0));
         }
